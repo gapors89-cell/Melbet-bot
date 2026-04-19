@@ -201,12 +201,14 @@ async function sendDownloadButton(chatId: number): Promise<void> {
 
 // ── ميزة 6: كشف التسجيل ──
 const REGISTERED_WORDS = [
-  "سجلت", "دزت", "درت", "خليت", "صنعت", "عندي حساب", "سجل", "رجيسترد",
-  "registered", "créé", "inscrit", "fait",
+  "سجلت", "دزت", "درت", "خليت", "صنعت", "عندي حساب", "رجيسترد",
+  "registered", "créé", "inscrit",
 ];
 
 function isRegistered(text: string): boolean {
   const clean = text.trim().toLowerCase();
+  // تجنب كلمات مثل "نتسجل" "تسجل" "كيفاش نسجل"
+  if (/نتسجل|تسجل|نسجل|كيفاش|كيف|comment|où|وين|منين|فين/.test(clean)) return false;
   return REGISTERED_WORDS.some((w) => clean.includes(w));
 }
 
