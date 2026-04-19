@@ -70,13 +70,13 @@ function getVipMsg(): string {
   return VIP_MESSAGES[Math.floor(Math.random() * VIP_MESSAGES.length)]!;
 }
 
-// ── رسائل التذكير ──
+// ── رسائل التذكير كل نصف ساعة ──
 const REMINDER_MESSAGES = [
-  "واش كلشي مزيان؟ 😊 ما تفوتش الفرصة، بزاف دالناس بداو يستعملو السكريبت ودبا كيربحوا — أنت الجاي؟ 💰",
-  "مازلت هنا؟ 😄 السكريبت مازال متاح، فقط سجل حساب جديد في Melbet بالكود 999BOT وبدا تربح معانا 🎯",
-  "نتا مجاوبتنيش 🤔 شايف بلي مازلت متردد — عارف أن الناس اللي جربوا ما ندموش؟ الفرصة مازالت موجودة ✅",
-  "هيا ما تخليش الفرصة تفوتك 🔥 واحد من عندنا ربح دبا — أنت الجاي باش تجرب؟",
-  "سمعني مازلنا ننتظروك 😊 خاصك غير حساب جديد في Melbet بالكود 999BOT وكتبدا تشوف النتائج بنفسك 💸",
+  `أخويا 👋 مازلت ننتظرك — السكريبت محدود وبزاف دالناس كتستافد منو دبا 🍎\n\nالفرصة ماشي غادي تبقى دايمة، سجل حساب جديد في Melbet بالكود *999BOT* وأنا نرسل ليك السكريبت مباشرة 🎯`,
+  `أخويا ما تفوتش الفرصة 🔥 السكريبت ديال التفاحة محدود — الأماكن كتنقص كل يوم\n\nبزاف استعملوه وربحوا — غير سجل في Melbet بالكود *999BOT* وأنا نبعث ليك السكريبت دابا 💰`,
+  `سمعني أخويا ⏰ السكريبت مازال متاح دبا ولكن ما نعرفش حتى متى\n\nالناس كتستافد منو كل يوم — خاصك غير حساب جديد في Melbet بالكود *999BOT* وأنا نرسل ليك وصول السكريبت 🍎`,
+  `أخويا 💬 واحد من عندنا ربح غير دبا بالسكريبت — أنت الجاي؟\n\nما تخليش الفرصة تفوتك، سجل في Melbet بالكود *999BOT* وأنا نفعل ليك السكريبت مباشرة ✅`,
+  `تذكير أخويا 🔔 السكريبت ديال التفاحة كيعطي توقعات صحيحة 100% على Melbet\n\nبزاف دالناس استفادوا — الباقي غير تسجل بالكود *999BOT* وأنا نرسل ليك السكريبت 🎯`,
 ];
 
 function getReminderMsg(): string {
@@ -91,9 +91,9 @@ setInterval(async () => {
       try {
         const photoId = getRandomPhoto();
         if (photoId && Math.random() < 0.5) {
-          await bot.sendPhoto(chatId, photoId, { caption: getReminderMsg() });
+          await bot.sendPhoto(chatId, photoId, { caption: getReminderMsg(), parse_mode: "Markdown" });
         } else {
-          await bot.sendMessage(chatId, getReminderMsg());
+          await bot.sendMessage(chatId, getReminderMsg(), { parse_mode: "Markdown" });
         }
         reminderSent.set(chatId, now);
         logger.info({ chatId }, "Sent reminder message");
@@ -158,6 +158,33 @@ const ASK_REGISTER_WORDS = [
 function isAskingToRegister(text: string): boolean {
   const clean = text.trim().toLowerCase();
   return ASK_REGISTER_WORDS.some((w) => clean.includes(w));
+}
+
+// ── كشف أسئلة "كيفاش نستافد / طريقة الاستفادة / كيفاش السكريبت كيخدم" ──
+const ASK_HOW_TO_USE_WORDS = [
+  "كيفاش نستافد", "كيفاش استافد", "طريقة الاستفادة", "طريقة ديال",
+  "كيفاش السكريبت", "كيفاش كيخدم", "كيفاش يخدم", "شنو دير",
+  "شنو خاصني", "شنو خص", "كيفاش نبدا", "كيفاش نبدأ", "من وين نبدا",
+  "كيفاش نحصل", "كيفاش نوصل", "كيفاش نلقى",
+  "comment utiliser", "comment ça marche", "comment faire",
+  "comment commencer", "comment accéder", "comment avoir",
+  "how to use", "how does it work", "how to start",
+  "واش خاصني دير", "شنو دارو", "علاش", "فاش كيخدم",
+];
+
+function isAskingHowToUse(text: string): boolean {
+  const clean = text.trim().toLowerCase();
+  return ASK_HOW_TO_USE_WORDS.some((w) => clean.includes(w));
+}
+
+const HOW_TO_USE_RESPONSES = [
+  `أخويا السكريبت سهل بزاف 🍎\n\nالباقي غير تفتح *حساب جديد في Melbet* بالكود *999BOT* عند التسجيل — وأنا نرسل ليك السكريبت مباشرة بعد ما تبعث ليا الـ ID ديالك ✅`,
+  `الطريقة سهلة أخويا 👌\n\nأول خطوة: *حساب جديد في Melbet* بالكود *999BOT*\nبعد ما تتسجل، بعث ليا الـ ID وأنا نفعل ليك وصول السكريبت مباشرة 🎯`,
+  `أخويا باش تستافد من السكريبت خاصك غير شي واحد 🔑\n\n*حساب جديد في Melbet* بالكود *999BOT* — بعد ما تكمل التسجيل رسل ليا الـ ID وأنا نرسل ليك السكريبت دبا 🍎`,
+];
+
+function getHowToUseResponse(): string {
+  return HOW_TO_USE_RESPONSES[Math.floor(Math.random() * HOW_TO_USE_RESPONSES.length)]!;
 }
 
 const MELBET_REGISTER_URL = "https://refpa3665.com/L?tag=d_4182345m_66335c_&site=4182345&ad=66335";
@@ -477,6 +504,12 @@ bot.on("message", async (msg) => {
       }, vipDelay);
 
       logger.info({ chatId, urgencyDelay, vipDelay }, "Scheduled agreement follow-up messages");
+
+    } else if (isAskingHowToUse(userText)) {
+      // سأل عن طريقة الاستفادة — نجاوبو مباشرة بحساب Melbet + 999BOT
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      await bot.sendMessage(chatId, getHowToUseResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Sent how-to-use response with Melbet+999BOT");
 
     } else if (isAskingToRegister(userText) && !downloadButtonSent.has(chatId)) {
       // سأل "منين/كيفاش نتسجل" — نبعث الأزرار
