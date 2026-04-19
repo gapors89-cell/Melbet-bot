@@ -119,11 +119,9 @@ function getMotivationCaption(): string {
 }
 
 const MELBET_VARIANTS = [
-  `⚠️ *مهم!* السكريبت ما يخدمش مع الحساب القديم إطلاقاً 🚫\n\nخاصك *حساب جديد في Melbet* بالكود البرومو *999BOT* — بلا هذا الكود ما غادي يشتغل معك ✅`,
-  `🚫 *انتبه!* السكريبت مكيخدمش مع الحسابات القديمة\n\nالحل الوحيد: سجل *حساب جديد في Melbet* بالكود *999BOT* وغادي تشوف الفرق بنفسك 💰`,
-  `🔑 *الشرط الأساسي للسكريبت:*\n\nحساب جديد في *Melbet* + الكود *999BOT* عند التسجيل\n\nالحساب القديم ما يتشغلش معاه من الأصل ⚠️`,
-  `⚡ السكريبت مصمم غير للحسابات الجديدة في Melbet\n\nسجل دبا بالكود *999BOT* وبدا تستعمله مباشرة 🎯\n\n_بدون الكود ما غادي تلقى التوقعات الصحيحة_`,
-  `📌 *الحساب القديم ما يكفيش للسكريبت*\n\nخاصك تفتح حساب جديد في *Melbet* وتكتب الكود *999BOT* عند التسجيل — هذا ضروري باش يخدم معك 💯`,
+  `أخويا مزيان 👍\n\nالسكريبت ما يخدمش مع الحساب القديم — خاصك *حساب جديد في Melbet* بالكود *999BOT* ضروري عند التسجيل 🔑\n\nبعد ما تتسجل، رسل ليا الـ ID ديالك وأنا نفعلو ليك السكريبت مباشرة ✅`,
+  `واه أخويا، السكريبت كيطلب حساب جديد فقط 🚫\n\nالحساب القديم ما يتشغلش معاه من الأصل — سجل في *Melbet* بالكود *999BOT* وبعد رسل ليا الـ ID 👇`,
+  `مزيان أخويا! السكريبت ما كيخدمش مع الحسابات القديمة 🚫\n\nغير سجل *حساب جديد في Melbet* بالكود *999BOT* — وبعد ما تكمل التسجيل بعث ليا الـ ID باش نفعلو ليك وصول السكريبت 🍎`,
 ];
 
 function getMelbetMsg(): string {
@@ -232,23 +230,20 @@ function isFrench(text: string): boolean {
   return frenchWords.some((w) => text.toLowerCase().includes(w));
 }
 
-const SYSTEM_PROMPT = `Tu es un assistant intelligent et persuasif qui parle aussi bien le Darija marocain que le français.
-Ta mission est de convaincre les gens d'utiliser le script "Apple of Fortune" qui donne des prédictions précises sur Melbet.
+const SYSTEM_PROMPT = `أنت شخص اسمك "أمين"، مش بوت — إنسان حقيقي كتساعد الناس باش يستعملوا سكريبت التفاحة (Apple of Fortune).
 
-Règles importantes :
-- Si la personne écrit en français, réponds en français. Sinon, réponds en Darija marocain uniquement.
-- Réponds intelligemment mais toujours dans le cadre du script et des gains.
-- Mentionne toujours "Melbet" et le code promo "999BOT" quand tu parles de créer un compte ou de s'inscrire.
-- Si elle demande s'il y a des gains : "واه بزاف دالمغاربة جربوه وخدم ليهم" / "Oui, beaucoup de Marocains ont gagné avec le script sur Melbet".
-- Si elle doute : "بزاف كانو متترددين وجربوه وفرحوا" / "Beaucoup hésitaient et ont fini par gagner".
-- Si elle demande comment ça fonctionne : il analyse les patterns et donne des prédictions précises sur Melbet.
-- Si elle n'a jamais joué sur Melbet (مبتدئ) : rassure-la, c'est simple — سجل في Melbet بالكود 999BOT والسكريبت كيهدي كلشي.
-- Si elle a déjà un compte Melbet (خبير) : explique que le vieux compte ne fonctionne pas avec le script, il faut un nouveau compte Melbet avec le code 999BOT.
-- Si elle demande si Melbet est le seul : "آه غير Melbet دبا" / "Oui, seulement Melbet pour l'instant".
-- Si elle demande si elle doit envoyer de l'argent : elle charge son propre compte Melbet, elle n'envoie rien à personne.
-- Si elle demande le montant minimum : peu importe, l'essentiel c'est d'avoir quelque chose pour jouer sur Melbet.
-- IMPORTANT: Chaque fois que tu mentionnes la création d'un compte ou l'inscription, tu DOIS écrire le code exactement comme ça : "بالكود 999BOT" ou "avec le code 999BOT". Ne dis JAMAIS "فتح حساب جديد في Melbet" sans ajouter "بالكود 999BOT".
-- Ne sors jamais du sujet. Maximum 3 phrases.`;
+قواعد مهمة:
+- تكلم دايما بالدارجة المغربية فقط. إذا كلمك بالفرنسية، رد بالفرنسية.
+- استعمل دايما كلمة "أخويا" مع الشخص — هذا يخلي الكلام أقرب وأدفأ.
+- ما تقولش أبدا أنك بوت أو أنك برنامج — أنت أمين، واحد ديال الفريق.
+- السكريبت كيعطي توقعات صحيحة 100% على Melbet — هذا هو الشرح الأساسي.
+- قول بلي بزاف من الناس استعملوه وربحوا — طبيعي وعادي تذكر أمثلة.
+- إذا سألك واش السكريبت كيخدم: "واه أخويا، بزاف استعملوه وما ندموش، السكريبت كيحلل ويعطيك التوقع الصحيح".
+- إذا كان عنده شك: "أخويا أنا فاهم، ولكن الناس اللي جربوا ما ندموش — غير جرب وشوف بنفسك".
+- إذا سأل عن المبلغ: "ما كاينش حد أدنى أخويا، يكفي غير عندك شي فحسابك باش تلعب".
+- إذا سأل واش خاصه يبعث فلوس ليك: "لا لا أخويا، أنت كتعبي حسابك ديالك، ما كترسل حتى درهم لحد".
+- ما تخرجش من موضوع السكريبت أبدا. جاوب فـ 2-3 جمل فقط.
+- IMPORTANT: إذا تكلمت على التسجيل أو الحساب الجديد، دايما قول "في Melbet بالكود 999BOT" — هذا إلزامي.`;
 
 logger.info("Telegram bot started and polling...");
 
@@ -376,7 +371,19 @@ bot.on("message", async (msg) => {
     }
 
     const isFirstMessage = !welcomedUsers.has(chatId);
-    if (isFirstMessage) welcomedUsers.add(chatId);
+    if (isFirstMessage) {
+      welcomedUsers.add(chatId);
+      // رسالة الترحيب الثابتة — كأنها من أمين مباشرة
+      const greetings = [
+        `السلام عليكم 👋 أنا أمين، واش بغيتي تجرب سكريبت التفاحة المجاني؟ 🍎`,
+        `آسلامو عليكم 😊 أنا أمين — واش سمعتي على سكريبت التفاحة؟ بغيتي تجربو مجانا؟ 🍎`,
+        `السلام عليكم أخويا 👋 أنا أمين، واش بغيتي تجرب السكريبت ديال التفاحة — مجاني بالكامل 🍎`,
+      ];
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
+      await bot.sendMessage(chatId, greeting);
+      logger.info({ chatId }, "Sent fixed welcome message");
+      return;
+    }
 
     const french = isFrench(userText);
     const history = conversationHistory.get(chatId) ?? [];
@@ -384,15 +391,6 @@ bot.on("message", async (msg) => {
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       { role: "system", content: SYSTEM_PROMPT },
     ];
-
-    if (isFirstMessage) {
-      messages.push({
-        role: "system",
-        content: french
-          ? `Premier message de ${firstName}. Souhaite-lui la bienvenue chaleureusement, puis demande-lui s'il a déjà un compte Melbet ou s'il est nouveau, et s'il veut utiliser le script Apple of Fortune.`
-          : `هذا أول رسالة من ${firstName}. رحب به بالاسم بحرارة بالدارجة، ثم اسأله واش سبق ليه يلعب في Melbet ولا هو جديد، وواش بغى يستعمل سكريبت Apple of Fortune.`,
-      });
-    }
 
     messages.push(...history);
     messages.push({ role: "user", content: userText });
