@@ -197,16 +197,30 @@ async function sendDownloadButton(chatId: number): Promise<void> {
   });
 }
 
-// ── ميزة 6: كشف التسجيل ──
+// ── كشف التسجيل بكل الطرق الممكنة ──
 const REGISTERED_WORDS = [
-  "سجلت", "دزت", "درت", "خليت", "صنعت", "عندي حساب", "رجيسترد",
-  "registered", "créé", "inscrit",
+  // دارجة مغربية — ماضي
+  "سجلت", "تسجلت", "مسجل", "سجلتي",
+  "فتحت", "فتحتو", "فتحت حساب",
+  "درت", "ديرت", "دار", "درتو",
+  "خليت", "خلقت", "صنعت", "عملت",
+  "كملت", "خلصت", "وقّعت", "وقعت",
+  "عندي حساب", "عندي", "كاين عندي",
+  "رجيسترت", "رجستريت", "رجيسترد",
+  "دزت", "واصلت",
+  // فرنسية
+  "j'ai créé", "j'ai fini", "j'ai fait", "c'est fait", "inscrit", "créé",
+  "j'ai ouvert", "j'ai terminé", "fait",
+  // إنجليزية
+  "registered", "done", "signed up", "created",
 ];
 
 function isRegistered(text: string): boolean {
   const clean = text.trim().toLowerCase();
-  // تجنب كلمات مثل "نتسجل" "تسجل" "كيفاش نسجل"
-  if (/نتسجل|تسجل|نسجل|كيفاش|كيف|comment|où|وين|منين|فين/.test(clean)) return false;
+  // تجنب أسئلة كيفاش/منين نتسجل
+  if (/كيفاش\s*ن|كيف\s*ن|منين\s*ن|وين\s*ن|فين\s*ن|comment|où/.test(clean)) return false;
+  // تجنب "نتسجل" و"نسجل" المضارع
+  if (/\bنتسجل\b|\bنسجل\b|\bتسجل\b/.test(clean)) return false;
   return REGISTERED_WORDS.some((w) => clean.includes(w));
 }
 
@@ -325,10 +339,11 @@ bot.on("message", async (msg) => {
           logger.info({ chatId, melbetId }, "Old Melbet account detected");
           await bot.sendMessage(
             chatId,
-            `⚠️ *انتبه! الحساب ديالك قديم*\n\n` +
-            `الـ ID \`${melbetId}\` قديم — السكريبت مايخدمش مع الحسابات القديمة على الإطلاق 🚫\n\n` +
-            `*عندك فرصة أخيرة واحدة:*\n` +
-            `سجل حساب جديد دبا وغادي تستفيد من السكريبت بشكل كامل 🎯`,
+            `🚨 *تحذير من السيستام!*\n\n` +
+            `اكتشف السيستام بلي الـ ID \`${melbetId}\` ديالك *قديم* ⛔\n\n` +
+            `الحسابات القديمة كتتحذر وممكن *تتحذف* من السيستام في أي وقت 🔴\n\n` +
+            `*عندك فرصة أخيرة دبا:*\n` +
+            `سجل حساب جديد في Melbet بالكود *999BOT* قبل فوات الأوان ⏳`,
             {
               parse_mode: "Markdown",
               reply_markup: {
