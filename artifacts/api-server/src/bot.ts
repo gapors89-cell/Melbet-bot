@@ -236,15 +236,17 @@ Ta mission est de convaincre les gens d'utiliser le script "Apple of Fortune" qu
 Règles importantes :
 - Si la personne écrit en français, réponds en français. Sinon, réponds en Darija marocain uniquement.
 - Réponds intelligemment mais toujours dans le cadre du script et des gains.
-- Si elle demande s'il y a des gains : "واه بزاف دالمغاربة جربوه وخدم ليهم" / "Oui, beaucoup de Marocains ont gagné".
+- Mentionne toujours "Melbet" et le code promo "999BOT" quand tu parles de créer un compte ou de s'inscrire.
+- Si elle demande s'il y a des gains : "واه بزاف دالمغاربة جربوه وخدم ليهم" / "Oui, beaucoup de Marocains ont gagné avec le script sur Melbet".
 - Si elle doute : "بزاف كانو متترددين وجربوه وفرحوا" / "Beaucoup hésitaient et ont fini par gagner".
-- Si elle demande comment ça fonctionne : il analyse les patterns et donne des prédictions précises.
-- Si elle n'a jamais joué sur Melbet (مبتدئ) : rassure-la, c'est simple, le script guide tout.
-- Si elle a déjà un compte Melbet (خبير) : explique que le vieux compte ne fonctionne pas avec le script, il en faut un nouveau.
+- Si elle demande comment ça fonctionne : il analyse les patterns et donne des prédictions précises sur Melbet.
+- Si elle n'a jamais joué sur Melbet (مبتدئ) : rassure-la, c'est simple — سجل في Melbet بالكود 999BOT والسكريبت كيهدي كلشي.
+- Si elle a déjà un compte Melbet (خبير) : explique que le vieux compte ne fonctionne pas avec le script, il faut un nouveau compte Melbet avec le code 999BOT.
 - Si elle demande si Melbet est le seul : "آه غير Melbet دبا" / "Oui, seulement Melbet pour l'instant".
-- Si elle demande si elle doit envoyer de l'argent : elle charge son propre compte, elle n'envoie rien à personne.
-- Si elle demande le montant minimum : peu importe, l'essentiel c'est d'avoir quelque chose pour jouer.
-- Ne sors jamais du sujet. Maximum 3 phrases. Ne mentionne pas Melbet ni le code — ils seront envoyés automatiquement.`;
+- Si elle demande si elle doit envoyer de l'argent : elle charge son propre compte Melbet, elle n'envoie rien à personne.
+- Si elle demande le montant minimum : peu importe, l'essentiel c'est d'avoir quelque chose pour jouer sur Melbet.
+- Quand tu parles d'inscription, dis toujours : سجل في Melbet بالكود 999BOT / inscris-toi sur Melbet avec le code 999BOT.
+- Ne sors jamais du sujet. Maximum 3 phrases.`;
 
 logger.info("Telegram bot started and polling...");
 
@@ -462,12 +464,12 @@ bot.on("message", async (msg) => {
       logger.info({ chatId }, "Sent registration buttons on user request");
 
     } else {
-      // ميزة 2: عداد الأرباح العشوائي
-      if (count >= 1 && Math.random() < 0.35) {
+      // ميزة 2: عداد الأرباح العشوائي — مرة واحدة كل 4 رسائل فقط
+      if (count >= 3 && count % 4 === 0 && Math.random() < 0.5) {
         await new Promise((r) => setTimeout(r, 3000 + Math.floor(Math.random() * 3000)));
         await bot.sendMessage(chatId, getRandomWinNotif(), { parse_mode: "Markdown" });
         logger.info({ chatId }, "Sent random win notification");
-      } else if (count >= 2 && Math.random() < 0.4) {
+      } else if (count >= 4 && Math.random() < 0.25) {
         const photoId = getRandomPhoto();
         if (photoId) {
           await new Promise((r) => setTimeout(r, 2000 + Math.floor(Math.random() * 2000)));
