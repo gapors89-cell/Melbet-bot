@@ -245,7 +245,7 @@ Règles importantes :
 - Si elle demande si Melbet est le seul : "آه غير Melbet دبا" / "Oui, seulement Melbet pour l'instant".
 - Si elle demande si elle doit envoyer de l'argent : elle charge son propre compte Melbet, elle n'envoie rien à personne.
 - Si elle demande le montant minimum : peu importe, l'essentiel c'est d'avoir quelque chose pour jouer sur Melbet.
-- Quand tu parles d'inscription, dis toujours : سجل في Melbet بالكود 999BOT / inscris-toi sur Melbet avec le code 999BOT.
+- IMPORTANT: Chaque fois que tu mentionnes la création d'un compte ou l'inscription, tu DOIS écrire le code exactement comme ça : "بالكود 999BOT" ou "avec le code 999BOT". Ne dis JAMAIS "فتح حساب جديد في Melbet" sans ajouter "بالكود 999BOT".
 - Ne sors jamais du sujet. Maximum 3 phrases.`;
 
 logger.info("Telegram bot started and polling...");
@@ -401,7 +401,14 @@ bot.on("message", async (msg) => {
       max_tokens: 300,
     });
 
-    const reply = response.choices[0]?.message?.content ?? "عذراً، حاول مرة أخرى.";
+    let reply = response.choices[0]?.message?.content ?? "عذراً، حاول مرة أخرى.";
+
+    // تأكد دايما من ذكر 999BOT إذا كان الجواب فيه Melbet أو تسجيل
+    const mentionsMelbet = /melbet|تسجيل|حساب جديد|سجل/i.test(reply);
+    const mentionsCode = /999BOT/i.test(reply);
+    if (mentionsMelbet && !mentionsCode) {
+      reply += `\n\n📌 لا تنسى الكود: *999BOT*`;
+    }
 
     const updatedHistory: OpenAI.Chat.ChatCompletionMessageParam[] = [
       ...history,
