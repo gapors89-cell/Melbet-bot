@@ -26,6 +26,19 @@ const downloadButtonSent = new Set<number>();
 const waitingForId = new Set<number>();
 const knownUsers = new Map<number, { name: string; username?: string; joinedAt: number }>();
 
+// ── محاكاة الكتابة البشرية ──
+async function typeAndSend(
+  chatId: number,
+  text: string,
+  opts: Parameters<typeof bot.sendMessage>[2] = {}
+): Promise<void> {
+  const chars   = text.replace(/[*_~`[\]]/g, "").length;
+  const delayMs = Math.min(Math.max(chars * 38, 1200), 4800);
+  await bot.sendChatAction(chatId, "typing");
+  await new Promise((r) => setTimeout(r, delayMs));
+  await bot.sendMessage(chatId, text, opts);
+}
+
 // ── إشعار الأونر ──
 async function notifyOwner(text: string): Promise<void> {
   if (!OWNER_CHAT_ID) return;
@@ -826,12 +839,12 @@ bot.on("message", async (msg) => {
     if (userText.startsWith("/broadcast ")) {
       const broadcastMsg = userText.slice("/broadcast ".length).trim();
       if (!broadcastMsg) {
-        await bot.sendMessage(chatId, "⚠️ كتب الرسالة بعد /broadcast");
+        await typeAndSend(chatId, "⚠️ كتب الرسالة بعد /broadcast");
         return;
       }
       const targets = [...knownUsers.keys()];
       let sent = 0; let failed = 0;
-      await bot.sendMessage(chatId, `📤 البرودكاست بدا — *${targets.length}* شخص...`, { parse_mode: "Markdown" });
+      await typeAndSend(chatId, `📤 البرودكاست بدا — *${targets.length}* شخص...`, { parse_mode: "Markdown" });
       for (const uid of targets) {
         try {
           await bot.sendMessage(uid, broadcastMsg, { parse_mode: "Markdown" });
@@ -839,7 +852,7 @@ bot.on("message", async (msg) => {
           await new Promise((r) => setTimeout(r, 60));
         } catch { failed++; }
       }
-      await bot.sendMessage(chatId, `✅ وصلت لـ *${sent}* | ❌ فشلت *${failed}*`, { parse_mode: "Markdown" });
+      await typeAndSend(chatId, `✅ وصلت لـ *${sent}* | ❌ فشلت *${failed}*`, { parse_mode: "Markdown" });
       return;
     }
 
@@ -848,7 +861,7 @@ bot.on("message", async (msg) => {
       const list = [...knownUsers.entries()].slice(-10).reverse()
         .map(([id, u]) => `• [${u.name}](tg://user?id=${id})${u.username ? " @" + u.username : ""} — \`${id}\``)
         .join("\n");
-      await bot.sendMessage(chatId, `👥 *آخر 10 مستخدمين:*\n\n${list || "لا يوجد"}`, { parse_mode: "Markdown" });
+      await typeAndSend(chatId, `👥 *آخر 10 مستخدمين:*\n\n${list || "لا يوجد"}`, { parse_mode: "Markdown" });
       return;
     }
 
@@ -889,7 +902,7 @@ bot.on("message", async (msg) => {
             `🚫 *ID غير صالح!*\n\nالرقم \`${melbetId}\` ما هوش ID Melbet حقيقي\n\nسجل في Melbet بالكود *999BOT* وأعطيني الـ ID اللي كيبان ليك في التطبيق ✅`,
           ];
           const msg = INVALID_MSGS[Math.floor(Math.random() * INVALID_MSGS.length)]!;
-          await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
+          await typeAndSend(chatId, msg, { parse_mode: "Markdown" });
           waitingForId.add(chatId); // نبقاو منتظرين ID صحيح
           return;
         }
@@ -927,9 +940,9 @@ bot.on("message", async (msg) => {
           // حساب جديد ✅
           registeredUsers.add(chatId);
           logger.info({ chatId, melbetId }, "New Melbet account confirmed");
-          await bot.sendMessage(chatId, getSuccessMsg(), { parse_mode: "Markdown" });
+          await typeAndSend(chatId, getSuccessMsg(), { parse_mode: "Markdown" });
           // إرسال رابط السكريبت مباشرة بعد المبروك
-          await bot.sendMessage(chatId, `🍎 *سكريبت التفاحة — رابطك الخاص:*\n\n${SCRIPT_URL}\n\n_ابدا فيه دبا وخبرني بشحال ربحت 💰_`, {
+          await typeAndSend(chatId, `🍎 *سكريبت التفاحة — رابطك الخاص:*\n\n${SCRIPT_URL}\n\n_ابدا فيه دبا وخبرني بشحال ربحت 💰_`, {
             parse_mode: "Markdown",
             reply_markup: {
               inline_keyboard: [[{ text: "🍎 فتح السكريبت", url: SCRIPT_URL }]],
@@ -978,7 +991,7 @@ bot.on("message", async (msg) => {
         `السلام عليكم أخويا 👋 أنا أمين، واش بغيتي تجرب السكريبت ديال التفاحة — مجاني بالكامل 🍎`,
       ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
-      await bot.sendMessage(chatId, greeting);
+      await typeAndSend(chatId, greeting);
       logger.info({ chatId }, "Sent fixed welcome message");
       return;
     }
@@ -1015,7 +1028,7 @@ bot.on("message", async (msg) => {
     ].slice(-12);
     conversationHistory.set(chatId, updatedHistory);
 
-    await bot.sendMessage(chatId, reply);
+    await typeAndSend(chatId, reply);
     logger.info({ chatId }, "Sent AI reply");
 
     const count = (messageCount.get(chatId) ?? 0) + 1;
@@ -1026,7 +1039,7 @@ bot.on("message", async (msg) => {
 
       // الشروط — تتبعث دبا مع تأخير صغير طبيعي
       await new Promise((r) => setTimeout(r, 1500 + Math.floor(Math.random() * 1500)));
-      await bot.sendMessage(chatId, getMelbetMsg(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getMelbetMsg(), { parse_mode: "Markdown" });
 
       // ميزة 4: الاستعجال — بعد 3 إلى 6 دقائق
       const urgencyDelay = (3 * 60 + Math.floor(Math.random() * 3 * 60)) * 1000;
@@ -1034,7 +1047,7 @@ bot.on("message", async (msg) => {
         try {
           await bot.sendChatAction(chatId, "typing");
           await new Promise((r) => setTimeout(r, 1500 + Math.floor(Math.random() * 2000)));
-          await bot.sendMessage(chatId, getUrgencyMsg(), { parse_mode: "Markdown" });
+          await typeAndSend(chatId, getUrgencyMsg(), { parse_mode: "Markdown" });
           logger.info({ chatId }, "Sent delayed urgency message");
         } catch (err) {
           logger.error({ err, chatId }, "Failed to send delayed urgency message");
@@ -1051,7 +1064,7 @@ bot.on("message", async (msg) => {
           if (photoId) {
             await bot.sendPhoto(chatId, photoId, { caption: getVipMsg(), parse_mode: "Markdown" });
           } else {
-            await bot.sendMessage(chatId, getVipMsg(), { parse_mode: "Markdown" });
+            await typeAndSend(chatId, getVipMsg(), { parse_mode: "Markdown" });
           }
           logger.info({ chatId }, "Sent delayed VIP photo");
         } catch (err) {
@@ -1063,22 +1076,22 @@ bot.on("message", async (msg) => {
 
     } else if (isReportingWin(userText)) {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
-      await bot.sendMessage(chatId, getWinReportResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getWinReportResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled win report — congrats sent");
 
     } else if (isThanking(userText)) {
       await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 700)));
-      await bot.sendMessage(chatId, getThanksResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getThanksResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled thanks");
 
     } else if (isAskingWhereID(userText)) {
       await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
-      await bot.sendMessage(chatId, getFindIDResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getFindIDResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled where-is-ID question");
 
     } else if (isCallingScam(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1200)));
-      await bot.sendMessage(chatId, getScamResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getScamResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled scam accusation");
 
     } else if (isDoubting(userText)) {
@@ -1087,18 +1100,18 @@ bot.on("message", async (msg) => {
       if (photoId) {
         await bot.sendPhoto(chatId, photoId, { caption: getDoubtResponse(), parse_mode: "Markdown" });
       } else {
-        await bot.sendMessage(chatId, getDoubtResponse(), { parse_mode: "Markdown" });
+        await typeAndSend(chatId, getDoubtResponse(), { parse_mode: "Markdown" });
       }
       logger.info({ chatId }, "Handled doubt — sent proof");
 
     } else if (hasNoMoney(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
-      await bot.sendMessage(chatId, getNoMoneyResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getNoMoneyResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled no-money concern");
 
     } else if (isDelaying(userText)) {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
-      await bot.sendMessage(chatId, getDelayResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getDelayResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled delay response");
 
     } else if (isAskingRisk(userText)) {
@@ -1107,68 +1120,68 @@ bot.on("message", async (msg) => {
       if (photoId) {
         await bot.sendPhoto(chatId, photoId, { caption: getRiskResponse(), parse_mode: "Markdown" });
       } else {
-        await bot.sendMessage(chatId, getRiskResponse(), { parse_mode: "Markdown" });
+        await typeAndSend(chatId, getRiskResponse(), { parse_mode: "Markdown" });
       }
       logger.info({ chatId }, "Handled risk question — sent photo proof");
 
     } else if (isAskingHowMuch(userText)) {
       await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
-      await bot.sendMessage(chatId, getHowMuchResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getHowMuchResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled how-much-can-I-earn question");
 
     } else if (mentionsOldAccount(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
-      await bot.sendMessage(chatId, getOldAccountMentionResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getOldAccountMentionResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled old-account mention before ID");
 
     } else if (isAskingIOS(userText)) {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
-      await bot.sendMessage(chatId, getIOSResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getIOSResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled iOS/iPhone question");
 
     } else if (wantsScriptFree(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
-      await bot.sendMessage(chatId, getNoRegisterResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getNoRegisterResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled wants-script-without-Melbet");
 
     } else if (isAskingHalal(userText)) {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
-      await bot.sendMessage(chatId, getHalalResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getHalalResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled halal/haram question");
 
     } else if (isAskingSmallAmount(userText)) {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
-      await bot.sendMessage(chatId, getSmallAmountResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getSmallAmountResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled small-amount question");
 
     } else if (isAskingComputer(userText)) {
       await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 700)));
-      await bot.sendMessage(chatId, getComputerResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getComputerResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled computer/laptop question");
 
     } else if (isAskingAboutApple(userText)) {
       await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
-      await bot.sendMessage(chatId, getAppleScriptResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getAppleScriptResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled apple-script explanation");
 
     } else if (isAskingGroup(userText)) {
       await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 700)));
-      await bot.sendMessage(chatId, getGroupResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getGroupResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled group question");
 
     } else if (isAskingHelp(userText)) {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
-      await bot.sendMessage(chatId, getHelpResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getHelpResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled help/problem request");
 
     } else if (isAskingHowToUse(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
-      await bot.sendMessage(chatId, getHowToUseResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getHowToUseResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Sent how-to-use response with Melbet+999BOT");
 
     } else if (isJustAcknowledging(userText)) {
       await new Promise((r) => setTimeout(r, 600 + Math.floor(Math.random() * 600)));
-      await bot.sendMessage(chatId, getAckResponse(), { parse_mode: "Markdown" });
+      await typeAndSend(chatId, getAckResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled short acknowledgment — pushed to register");
 
     } else if (isAskingToRegister(userText) && !downloadButtonSent.has(chatId)) {
@@ -1182,7 +1195,7 @@ bot.on("message", async (msg) => {
       // ميزة 2: عداد الأرباح العشوائي — مرة واحدة كل 4 رسائل فقط
       if (count >= 3 && count % 4 === 0 && Math.random() < 0.5) {
         await new Promise((r) => setTimeout(r, 3000 + Math.floor(Math.random() * 3000)));
-        await bot.sendMessage(chatId, getRandomWinNotif(), { parse_mode: "Markdown" });
+        await typeAndSend(chatId, getRandomWinNotif(), { parse_mode: "Markdown" });
         logger.info({ chatId }, "Sent random win notification");
       } else if (count >= 4 && Math.random() < 0.25) {
         const photoId = getRandomPhoto();
@@ -1195,7 +1208,7 @@ bot.on("message", async (msg) => {
     }
   } catch (err) {
     logger.error({ err, chatId }, "Error processing message");
-    await bot.sendMessage(chatId, "حدث خطأ، يرجى المحاولة مرة أخرى.");
+    await typeAndSend(chatId, "حدث خطأ، يرجى المحاولة مرة أخرى.");
   }
 });
 
