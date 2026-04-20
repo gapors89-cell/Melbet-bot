@@ -886,7 +886,7 @@ bot.on("message", async (msg) => {
           const INVALID_MSGS = [
             `❌ *هاد الـ ID مزيف أو غير صالح!*\n\nالـ ID \`${melbetId}\` ما كيوجدش في نظام Melbet 🚫\n\nما تحاولش تديني أرقام عشوائية أخويا 😅\n\nسجل حساب حقيقي في Melbet بالكود *999BOT* وأعطيني الـ ID الصحيح 📲`,
             `⛔ *هاد الرقم ما صحيحش!*\n\nالـ ID \`${melbetId}\` ما كاينش في سيستام Melbet\n\nأعطيني ID حقيقي — تلقاه في التطبيق بعد التسجيل 👇\n\nسجل دبا بالكود *999BOT* وأنا نساعدك 🍎`,
-            `🚫 *ID غير صالح!*\n\nالرقم \`${melbetId}\` عشوائي وما هوش ID Melbet حقيقي\n\nالـ ID الصحيح كيكون بين مليار وستة وأربعين مليون — سجل في Melbet بالكود *999BOT* وأعطيني الـ ID اللي كيبان ليك في التطبيق ✅`,
+            `🚫 *ID غير صالح!*\n\nالرقم \`${melbetId}\` ما هوش ID Melbet حقيقي\n\nسجل في Melbet بالكود *999BOT* وأعطيني الـ ID اللي كيبان ليك في التطبيق ✅`,
           ];
           const msg = INVALID_MSGS[Math.floor(Math.random() * INVALID_MSGS.length)]!;
           await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
