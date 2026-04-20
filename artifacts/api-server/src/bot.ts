@@ -187,6 +187,101 @@ function getHowToUseResponse(): string {
   return HOW_TO_USE_RESPONSES[Math.floor(Math.random() * HOW_TO_USE_RESPONSES.length)]!;
 }
 
+// ══════════════════════════════════════════════════════
+// ── 1. كشف الشك "واش حقيقية / السكريبت خايب / واش كاين ربح" ──
+const DOUBT_WORDS = [
+  "حقيقية", "حقيقي", "واش صح", "واش كاين ربح", "خايب", "ما كيخدمش", "ما كايناش",
+  "كذب", "كاذب", "مو حقيقي", "مزيفة", "مزيف", "ما نصدقش", "ما صدقتش",
+  "واش ناس ربحو", "واش شي حد ربح", "دليل", "برهان",
+  "c'est faux", "c'est fake", "fake", "arnaque partielle",
+];
+function isDoubting(text: string): boolean {
+  const c = text.trim().toLowerCase();
+  if (/scam|نصاب|نصابة|سرقة|تنصب/.test(c)) return false;
+  return DOUBT_WORDS.some((w) => c.includes(w));
+}
+const DOUBT_RESPONSES = [
+  `أخويا واضح مترددشوية 😄 — عادي!\n\nولكن اعلم بلي ناس قبلك استعملو السكريبت وربحو بالفعل 💰 حتى واحد ما جا يقولي "خسرت" — الربح مضمون ما دمت استعملت السكريبت صح ✅`,
+  `أخويا مفهوم التردد 🤝 ولكن الحقيقة بانة!\n\nالناس اللي جربوا ما ندموش — جامي واحد رجع يشتكي 🔴 السكريبت كيخدم وكيبان النتائج بنفسها 🍎`,
+  `الربح كاين أخويا ما فيهش شك 💯\n\nكنعطي السكريبت مجاناً — واش عاقل يعطيك حاجة مجانية ويكون نصاب؟ 😄 جرب وشوف بنفسك الدليل هو ما غتشوفو بعيناك 👀`,
+];
+function getDoubtResponse(): string {
+  return DOUBT_RESPONSES[Math.floor(Math.random() * DOUBT_RESPONSES.length)]!;
+}
+
+// ── 2. كشف "ما عنديش فلوس / ما قادرش نشارج / ما عندي بطاقة" ──
+const NO_MONEY_WORDS = [
+  "ما عنديش فلوس", "ما عنديش دراهم", "ما قادرش نشارج", "ما عندي بطاقة",
+  "ما عندي كارط", "ما كاينش فلوس", "فلوس ما عندهاش", "بلا فلوس",
+  "ما كاينش دراهم", "خاوية", "ما قادرش", "مشارجش",
+  "pas d'argent", "pas de carte", "je peux pas recharger",
+];
+function hasNoMoney(text: string): boolean {
+  return NO_MONEY_WORDS.some((w) => text.trim().toLowerCase().includes(w));
+}
+const NO_MONEY_RESPONSES = [
+  `أخويا الفلوس اللي غتحتاجها هي باش تلعب *في حسابك أنت* — مغتبعتهاش ليا أنا 😄\n\nواش المشكل بلي ما قادرش تشارجي الحساب؟ خبرني السبب نساعدك 💪\n\nإلا محتاج حد يشارج ليك، هاد الشخص يقدر يعاونك: *0614947612* 📲`,
+  `أخويا السكريبت مجاني بالكامل 🎁 — ما خاصكش تبعث ليا حتى درهم!\n\nالفلوس غتحتاجها فقط باش تلعب في *حسابك في Melbet* 🎯\n\nإلا مشكل في الشارج، كلم هاد الرقم يعاونك: *0614947612* 📞`,
+];
+function getNoMoneyResponse(): string {
+  return NO_MONEY_RESPONSES[Math.floor(Math.random() * NO_MONEY_RESPONSES.length)]!;
+}
+
+// ── 3. كشف "غدا / بعدين / ما عنديش وقت" ──
+const DELAY_WORDS = [
+  "غدا", "بعدين", "بعد شوية", "ما عنديش وقت", "مشغول", "دابا لا",
+  "نجي بعد", "منجيش دبا", "نرجع ليك", "نكلمك غدا", "نجي غدا",
+  "plus tard", "demain", "pas maintenant", "j'ai pas le temps",
+  "tomorrow", "later", "not now", "no time",
+];
+function isDelaying(text: string): boolean {
+  return DELAY_WORDS.some((w) => text.trim().toLowerCase().includes(w));
+}
+const DELAY_RESPONSES = [
+  `أخويا خذ وقتك مزربانينك 😊\n\nغير ما تلومنيش إلى رجعتي ولقيتي الفترة المجانية انتهات ⏳ — الأماكن محدودة وكتنقص كل يوم 🔴`,
+  `عادي أخويا وقتك محترم 🤝\n\nغير احفظ هاد الكود: *999BOT* — هو اللي غتحتاجو فاش تتسجل في Melbet\n\nما تفوتش الفرصة، الفترة المجانية ماشي دايمة ⏰`,
+  `مفهوم أخويا 😄 خذ راحتك\n\nغير اعرف بلي الفترة المجانية محدودة — الناس اللي تسرعوا هما اللي استفادوا ✅ رجع متى بغيتي وأنا هنا 🙌`,
+];
+function getDelayResponse(): string {
+  return DELAY_RESPONSES[Math.floor(Math.random() * DELAY_RESPONSES.length)]!;
+}
+
+// ── 4. كشف "واش كاين ضمان / غنخسر / كاين خطر" ──
+const RISK_WORDS = [
+  "ضمان", "غنخسر", "نخسر", "خسارة", "كاين خطر", "خطر", "ما مضمونش",
+  "مضمون", "واش مضمون", "واش غنربح", "واش ممكن نخسر",
+  "garantie", "risque", "je vais perdre", "c'est risqué",
+];
+function isAskingRisk(text: string): boolean {
+  return RISK_WORDS.some((w) => text.trim().toLowerCase().includes(w));
+}
+const RISK_RESPONSES = [
+  `أخويا السكريبت مجاني — *مغتخسر والو* 💯\n\nالخسارة كتجي غير فاش تلعب *بدون* السكريبت 🎯 مع السكريبت النتائج كتتغير بالكامل\n\nتبغي دليل؟ نرسل ليك صور ديال الأرباح اللي داروها الناس عندنا 📸`,
+  `مكاين حتى خطر أخويا 😌 السكريبت مجاني — مغتخسر حتى درهم فيه\n\nالمال اللي كتلعب بيه هو ديالك في حسابك — والسكريبت كيعطيك توقعات صحيحة باش تربح أكثر مما تخسر ✅`,
+  `الضمان أخويا هو السكريبت نفسه 🍎\n\nما شفتيش واحد من عندنا قال "خسرت" — الدليل عندي صور واضحة نرسلهم ليك دبا 📲 شوف وعقل بنفسك 💪`,
+];
+function getRiskResponse(): string {
+  return RISK_RESPONSES[Math.floor(Math.random() * RISK_RESPONSES.length)]!;
+}
+
+// ── 5. كشف "scam / نصاب / ما نثقش فيك" ──
+const SCAM_WORDS = [
+  "scam", "نصاب", "نصابة", "تنصب", "سرقة", "كتسرق", "ما نثقش",
+  "ما واثقش", "ما صدقتكش", "غاشش", "غاش", "arnaque", "escroc",
+  "vous êtes un escroc", "c'est une arnaque", "kzab", "كذاب",
+];
+function isCallingScam(text: string): boolean {
+  return SCAM_WORDS.some((w) => text.trim().toLowerCase().includes(w));
+}
+const SCAM_RESPONSES = [
+  `أخويا كيفاش نكون نصاب 😅 — السكريبت *مجاني بالكامل* ما طلبت منك حتى درهم!\n\nإلا كاين شي واحد يقول بلي نصبت عليه — قوله يرسل ليا الدليل دبا وأنا نرد ليه فلوسو *بالضعف* 💯\n\nعلاش مغتيقش؟ حتى درهم مطلبتوش منك 🤝`,
+  `أخويا 😄 عاقل يرسل ليك حاجة مجانية وبعدين ينصب عليك؟\n\nإلا شي حد اشتكى مني — *رسل ليا الدليل دبا* وأنا نعوضو بالضعف ✅\n\nالسكريبت مجاني، الربح هو الهدف — ما كاينش هنا غير للمساعدة 🙌`,
+  `أخويا راه مقلت لك *مغترسلهالي حتى درهم* 😌 السكريبت مجاني بالكامل\n\nإلا عندك شك — قل ليا منين جاك وأنا نوضح ليك 💬\n\nالناس اللي شكاو ما كاينين، وإلا كانوا يجيبو الدليل نرد ليهم فلوسهم بالضعف 💯`,
+];
+function getScamResponse(): string {
+  return SCAM_RESPONSES[Math.floor(Math.random() * SCAM_RESPONSES.length)]!;
+}
+
 const MELBET_REGISTER_URL = "https://refpa3665.com/L?tag=d_4182345m_66335c_&site=4182345&ad=66335";
 
 async function sendDownloadButton(chatId: number): Promise<void> {
@@ -505,8 +600,42 @@ bot.on("message", async (msg) => {
 
       logger.info({ chatId, urgencyDelay, vipDelay }, "Scheduled agreement follow-up messages");
 
+    } else if (isCallingScam(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1200)));
+      await bot.sendMessage(chatId, getScamResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled scam accusation");
+
+    } else if (isDoubting(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      const photoId = getRandomPhoto();
+      if (photoId) {
+        await bot.sendPhoto(chatId, photoId, { caption: getDoubtResponse(), parse_mode: "Markdown" });
+      } else {
+        await bot.sendMessage(chatId, getDoubtResponse(), { parse_mode: "Markdown" });
+      }
+      logger.info({ chatId }, "Handled doubt — sent proof");
+
+    } else if (hasNoMoney(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      await bot.sendMessage(chatId, getNoMoneyResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled no-money concern");
+
+    } else if (isDelaying(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await bot.sendMessage(chatId, getDelayResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled delay response");
+
+    } else if (isAskingRisk(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      const photoId = getRandomPhoto();
+      if (photoId) {
+        await bot.sendPhoto(chatId, photoId, { caption: getRiskResponse(), parse_mode: "Markdown" });
+      } else {
+        await bot.sendMessage(chatId, getRiskResponse(), { parse_mode: "Markdown" });
+      }
+      logger.info({ chatId }, "Handled risk question — sent photo proof");
+
     } else if (isAskingHowToUse(userText)) {
-      // سأل عن طريقة الاستفادة — نجاوبو مباشرة بحساب Melbet + 999BOT
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
       await bot.sendMessage(chatId, getHowToUseResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Sent how-to-use response with Melbet+999BOT");
