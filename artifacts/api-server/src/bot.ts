@@ -1120,8 +1120,16 @@ bot.on("message", async (msg) => {
       ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
       await typeAndSend(chatId, greeting);
-      // أزرار الاختيار السريع بعد الترحيب
-      await new Promise((r) => setTimeout(r, 800));
+      // رسالة التعريف بالسكريبت
+      const pitches = [
+        `🍎 *سكريبت التفاحة* — برنامج مجاني لمدة محدودة كيحلل اللعب في Melbet ويعطيك توقعات صحيحة *90%*\n\nبزاف من الناس كيستعملوه وكيربحوا — وأنا هنا باش نساعدك توصلو بالمجان 🎯`,
+        `🍎 *واش سمعتي على سكريبت التفاحة؟*\n\nهو برنامج مجاني كيديك توقعات صحيحة *90%* على Melbet — الناس اللي خدموا بيه ربحوا بزاف\n\nوالله مجاني ومحدود الوقت فقط ⏳`,
+        `🍎 *سكريبت التفاحة* كيعطي توقعات صحيحة *90%* على Melbet — مجاني بالكامل لكن لوقت محدود\n\nالناس كيستعملوه ويربحوا، وأنا نساعدك تحصل عليه دبا 💰`,
+      ];
+      const pitch = pitches[Math.floor(Math.random() * pitches.length)]!;
+      await typeAndSend(chatId, pitch, { parse_mode: "Markdown" });
+      // أزرار الاختيار السريع بعد التعريف
+      await new Promise((r) => setTimeout(r, 600));
       await bot.sendMessage(chatId, `واش الوضع ديالك دبا؟ 👇`, {
         reply_markup: {
           inline_keyboard: [
