@@ -25,6 +25,32 @@ const registeredUsers = new Set<number>();
 const downloadButtonSent = new Set<number>();
 const waitingForId = new Set<number>();
 const pendingPitch = new Set<number>(); // ينتظر رد الشخص قبل الشرح
+
+// ── تتبع المواضيع ──
+const topicCounts = new Map<string, number>([
+  ["تسجيل", 0],
+  ["حساب قديم", 0],
+  ["سحب / شحن", 0],
+  ["ربح / خسارة", 0],
+  ["السكريبت", 0],
+  ["ضمان / نصب", 0],
+  ["شحال نربح", 0],
+  ["تحميل التطبيق", 0],
+  ["أخرى", 0],
+]);
+
+function detectTopic(text: string): string {
+  const t = text.toLowerCase();
+  if (/تسجيل|كيفاش نسجل|سجلت|كيفاش تسجل|كيسجل|تسجل/.test(t))     return "تسجيل";
+  if (/حساب قديم|عندي حساب|الحساب ديالي قديم/.test(t))              return "حساب قديم";
+  if (/سحب|شحن|شحنت|سحبت|دفع|تحويل|فلوس/.test(t))                   return "سحب / شحن";
+  if (/ربحت|خسرت|ربح|خسارة|ما ربحتش/.test(t))                       return "ربح / خسارة";
+  if (/سكريبت|تفاحة|كيخدم|كيعطي|توقع/.test(t))                      return "السكريبت";
+  if (/آمن|نصب|خايف|خوف|ضمان|موثوق|مزور/.test(t))                   return "ضمان / نصب";
+  if (/شحال|كم|مبلغ|قيمة|كمية/.test(t))                              return "شحال نربح";
+  if (/حمل|تحميل|apk|تطبيق|نزل/.test(t))                            return "تحميل التطبيق";
+  return "أخرى";
+}
 const knownUsers = new Map<number, { name: string; username?: string; joinedAt: number }>();
 
 // ── محاكاة الكتابة البشرية ──
@@ -991,6 +1017,25 @@ bot.on("message", async (msg) => {
       return;
     }
 
+    // ── /topics — إحصائيات المواضيع ──
+    if (userText === "/topics") {
+      const total = [...topicCounts.values()].reduce((a, b) => a + b, 0);
+      const sorted = [...topicCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .filter(([, count]) => count > 0);
+      const bars = sorted.map(([topic, count]) => {
+        const pct = total ? Math.round((count / total) * 100) : 0;
+        const bar = "█".repeat(Math.round(pct / 5)) || "░";
+        return `${bar} *${topic}* — ${count} (${pct}%)`;
+      }).join("\n");
+      await bot.sendMessage(
+        chatId,
+        `📊 *أكثر الأسئلة اللي كيسولو عليها الناس:*\n\n${bars || "لا يوجد بيانات بعد"}\n\n_مجموع الرسائل المصنفة: ${total}_`,
+        { parse_mode: "Markdown" }
+      );
+      return;
+    }
+
     return;
   }
 
@@ -1009,6 +1054,10 @@ bot.on("message", async (msg) => {
   logger.info({ chatId, userText }, "Received message");
   lastMessageTime.set(chatId, Date.now());
   reminderSent.delete(chatId);
+
+  // ── تتبع الموضوع ──
+  const topic = detectTopic(userText);
+  topicCounts.set(topic, (topicCounts.get(topic) ?? 0) + 1);
 
   try {
     await bot.sendChatAction(chatId, "typing");
