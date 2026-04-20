@@ -115,6 +115,90 @@ setInterval(async () => {
   }
 }, CHECK_INTERVAL_MS);
 
+// ══════════════════════════════════════════════════════
+// ── الجدولة اليومية: صباح + مساء + غوست ──
+// ══════════════════════════════════════════════════════
+const ghostMessageSent   = new Set<number>();
+const dailyBroadcastSent = new Map<number, string>(); // chatId → last date string
+const morningMsgSent     = new Map<number, string>(); // chatId → last date string
+
+const DAILY_BROADCAST_MSGS = [
+  `أخويا 🔥 غير دبا واحد من عندنا ربح بالسكريبت ديال التفاحة\n\nأنت مازلت ما جربتيش؟ الفرصة محدودة — سجل في Melbet بالكود *999BOT* وأنا نرسل ليك السكريبت 🍎`,
+  `أخويا 💰 الأرباح كتتواصل عند الناس اللي سجلوا\n\nالسكريبت مازال متاح ولكن الأماكن كتنقص — سجل دبا بالكود *999BOT* في Melbet وابدا ✅`,
+  `مساء النور أخويا 🌙 — ما تخليش النهار يفوتك بلا ربح\n\nالناس اللي استعملوا السكريبت اليوم ربحوا بزاف 💸 سجل في Melbet بالكود *999BOT* ودابا نبعث ليك السكريبت 🍎`,
+  `أخويا 📊 إحصائيات اليوم: بزاف دالناس ربحوا بالسكريبت\n\nأنت الجاي — سجل في Melbet بالكود *999BOT* وأنا نفعل ليك السكريبت قبل ما تنتهي الفترة المجانية ⏳`,
+];
+
+const MORNING_MSGS = [
+  `صباح الخير أخويا ☀️ — اليوم يوم زوين باش تبدا مع السكريبت\n\nسجل في Melbet بالكود *999BOT* وأنا نرسل ليك السكريبت دبا 🍎 يلاه بسم الله!`,
+  `صباح النور أخويا 🌅 — ناس بداو اليوم وربحوا من الصباح\n\nما تخليش الفرصة تفوتك — سجل في Melbet بالكود *999BOT* ✅`,
+  `صباح الخير 😊 — هاد النهار فرصة ذهبية باش تستعمل السكريبت\n\nسجل في Melbet بالكود *999BOT* وأنا هنا نساعدك خطوة خطوة 🍎`,
+];
+
+const GHOST_MSGS = [
+  `أخويا 👋 مازلت هنا ننتظرك\n\nأعرف راك مشغول — ولكن الفترة المجانية ديال السكريبت قريبة تنتهي ⏳\n\nهاد الرسالة الأخيرة — سجل في Melbet بالكود *999BOT* وأنا نرسل ليك السكريبت دبا 🍎`,
+  `أخويا آخر مرة كلمتني وما رجعتيش 🤔\n\nما نبغيكش تفوتك الفرصة — السكريبت مازال مجاني ولكن الأماكن قريبة تنتهي\n\nسجل في Melbet بالكود *999BOT* وأنا هنا 💪`,
+];
+
+function getMoroccoHour(): number {
+  return (new Date().getUTCHours() + 1) % 24;
+}
+
+setInterval(async () => {
+  const nowMs   = Date.now();
+  const hour    = getMoroccoHour();
+  const today   = new Date().toISOString().slice(0, 10);
+  const delay   = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  for (const [chatId] of knownUsers) {
+    if (registeredUsers.has(chatId)) continue;
+    const lastMsg = lastMessageTime.get(chatId) ?? 0;
+
+    // 1️⃣ رسالة الصباح — الساعة 9 صباحاً بتوقيت المغرب
+    if (hour === 9 && morningMsgSent.get(chatId) !== today) {
+      if (nowMs - lastMsg < 7 * 24 * 60 * 60 * 1000) { // نشيط < 7 أيام
+        try {
+          const msg = MORNING_MSGS[Math.floor(Math.random() * MORNING_MSGS.length)]!;
+          await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
+          morningMsgSent.set(chatId, today);
+          logger.info({ chatId }, "Sent morning message");
+          await delay(200);
+        } catch { /* ignore */ }
+      }
+    }
+
+    // 2️⃣ برودكاست مسائي — الساعة 8 مساءً
+    if (hour === 20 && dailyBroadcastSent.get(chatId) !== today) {
+      try {
+        const msg = DAILY_BROADCAST_MSGS[Math.floor(Math.random() * DAILY_BROADCAST_MSGS.length)]!;
+        const photoId = getRandomPhoto();
+        if (photoId && Math.random() < 0.4) {
+          await bot.sendPhoto(chatId, photoId, { caption: msg, parse_mode: "Markdown" });
+        } else {
+          await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
+        }
+        dailyBroadcastSent.set(chatId, today);
+        logger.info({ chatId }, "Sent daily evening broadcast");
+        await delay(200);
+      } catch { /* ignore */ }
+    }
+
+    // 3️⃣ رسالة الغوست — 48 ساعة بلا رد ولم تُبعث بعد
+    if (!ghostMessageSent.has(chatId) && lastMsg > 0) {
+      const hoursSince = (nowMs - lastMsg) / (1000 * 60 * 60);
+      if (hoursSince >= 48) {
+        try {
+          const msg = GHOST_MSGS[Math.floor(Math.random() * GHOST_MSGS.length)]!;
+          await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
+          ghostMessageSent.add(chatId);
+          logger.info({ chatId }, "Sent ghost follow-up message");
+          await delay(200);
+        } catch { /* ignore */ }
+      }
+    }
+  }
+}, 60 * 60 * 1000); // كل ساعة
+
 const MOTIVATION_CAPTIONS = [
   "هاهو واحد الشخص ربح معانا غير دبا 🔥\n\nأنت الجاي؟",
   "هاهو واحد من عندنا ربح هاد الصباح 💰\n\nالفرصة مازالت موجودة!",
