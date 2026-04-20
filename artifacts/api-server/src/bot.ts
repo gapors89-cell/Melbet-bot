@@ -35,7 +35,8 @@ async function notifyOwner(text: string): Promise<void> {
 }
 const conversationHistory = new Map<number, OpenAI.Chat.ChatCompletionMessageParam[]>();
 
-const OLD_ACCOUNT_THRESHOLD = 1_640_000_000;
+const OLD_ACCOUNT_THRESHOLD  = 1_640_000_000;
+const INVALID_ID_MAX         = 1_700_000_000;
 
 const MELBET_APK_URL = "https://melbet.com.ph/downloads/androidclient/releases_android/melbet/site/melbet.apk";
 
@@ -879,6 +880,19 @@ bot.on("message", async (msg) => {
       if (numMatch) {
         const melbetId = parseInt(numMatch[0]!, 10);
         waitingForId.delete(chatId);
+
+        // ── ID عشوائي أو مزيف (فوق الحد الأقصى) ──
+        if (melbetId > INVALID_ID_MAX) {
+          const INVALID_MSGS = [
+            `❌ *هاد الـ ID مزيف أو غير صالح!*\n\nالـ ID \`${melbetId}\` ما كيوجدش في نظام Melbet 🚫\n\nما تحاولش تديني أرقام عشوائية أخويا 😅\n\nسجل حساب حقيقي في Melbet بالكود *999BOT* وأعطيني الـ ID الصحيح 📲`,
+            `⛔ *هاد الرقم ما صحيحش!*\n\nالـ ID \`${melbetId}\` ما كاينش في سيستام Melbet\n\nأعطيني ID حقيقي — تلقاه في التطبيق بعد التسجيل 👇\n\nسجل دبا بالكود *999BOT* وأنا نساعدك 🍎`,
+            `🚫 *ID غير صالح!*\n\nالرقم \`${melbetId}\` عشوائي وما هوش ID Melbet حقيقي\n\nالـ ID الصحيح كيكون بين مليار وستة وأربعين مليون — سجل في Melbet بالكود *999BOT* وأعطيني الـ ID اللي كيبان ليك في التطبيق ✅`,
+          ];
+          const msg = INVALID_MSGS[Math.floor(Math.random() * INVALID_MSGS.length)]!;
+          await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
+          waitingForId.add(chatId); // نبقاو منتظرين ID صحيح
+          return;
+        }
 
         if (melbetId < OLD_ACCOUNT_THRESHOLD) {
           // حساب قديم
