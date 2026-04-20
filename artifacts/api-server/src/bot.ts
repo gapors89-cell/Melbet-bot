@@ -485,6 +485,83 @@ const HELP_RESPONSES = [
   `خبرني شنو المشكل أخويا 💬 — نحاول نحلو معاك دبا\n\nما كاينش مشكل كبير ما ينحلش 😊`,
   `أخويا أنا موجود 😊 — قلي شنو حصل ليك وأنا نساعدك خطوة خطوة 🤝`,
 ];
+function getHelpResponse(): string {
+  return HELP_RESPONSES[Math.floor(Math.random() * HELP_RESPONSES.length)]!;
+}
+
+// ── 16. شكرًا / merci ──
+const THANKS_WORDS = [
+  "شكرا","شكراً","شكران","مرسي","merci","thank","thx","شكرا بزاف",
+  "بارك الله","الله يبارك","يعطيك الصحة","جزاك الله","بارك الله فيك",
+  "أشكرك","تبارك الله","الله يجازيك",
+];
+function isThanking(t: string): boolean {
+  return THANKS_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const THANKS_RESPONSES = [
+  `العفو أخويا 😊 — أنا هنا باش نساعدك دايمًا\n\nالمهم دبا تسجل في Melbet بالكود *999BOT* وتبدا تستافد من السكريبت 🍎`,
+  `لا شكر على واجب أخويا 🤝 — هاد الحاجة واجبي عليك\n\nما تنساش: الكود *999BOT* عند التسجيل في Melbet ✅`,
+  `يسعد صباحك أخويا 😄 — أنا هنا دايمًا\n\nإلا عندك أي سؤال أو بغيتي تسجل، أنا موجود 💪`,
+];
+function getThanksResponse(): string {
+  return THANKS_RESPONSES[Math.floor(Math.random() * THANKS_RESPONSES.length)]!;
+}
+
+// ── 17. ربحت / جاء معايا 🎉 ──
+const WIN_REPORT_WORDS = [
+  "ربحت","ربحنا","جاء معايا","جات معايا","كسبت","كسبنا",
+  "غنيت","الفلوس جات","نجحت","j'ai gagné","gagné",
+  "ربحت بالسكريبت","جاء السكريبت","خدم السكريبت","نجح السكريبت",
+];
+function isReportingWin(t: string): boolean {
+  const c = t.trim().toLowerCase();
+  if (/ما ربحتش|ما كسبتش|ما جاش|ما نجحش/.test(c)) return false;
+  return WIN_REPORT_WORDS.some((w) => c.includes(w));
+}
+const WIN_REPORT_RESPONSES = [
+  `🎉🎊 مبروك أخويا!! هاد الخبر سعدني بزاف!\n\nكملت الطريق الصح بالسكريبت 🍎 — زد وكثر من الإيداع وكيزيد الربح\n\nشارك معايا الكمية اللي ربحتها نفرح معك 💰`,
+  `🏆 أخويا الله يبارك! مبروك الربح!\n\nهادا هو السكريبت لما كيخدم صح 🍎 — ما توقفش دابا، الفرص كتجي متتالية\n\nواصل وأنا هنا معك 💪`,
+  `يييه!! 🎊 مبروك أخويا! الله يزيد!\n\nشوف هاكداك كيخدم السكريبت 🍎 — زد تلعب واصبر على التوقعات ✅`,
+];
+function getWinReportResponse(): string {
+  return WIN_REPORT_RESPONSES[Math.floor(Math.random() * WIN_REPORT_RESPONSES.length)]!;
+}
+
+// ── 18. وين نلقى ID ديالي في Melbet ──
+const FIND_ID_WORDS = [
+  "وين نلقى id","وين نلقى الـ id","كيفاش نعرف id","كيفاش نلقى id",
+  "فين الـ id","وين هو id","فاش كاين id","شنو هو id",
+  "كيفاش نشوف id","id ديالي فين","أين id","كيف نعرف رقمي","شنو رقم حسابي",
+];
+function isAskingWhereID(t: string): boolean {
+  return FIND_ID_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const FIND_ID_RESPONSES = [
+  `أخويا الـ ID ديالك كاين في حسابك في Melbet 📲\n\n*الطريقة:*\n1️⃣ افتح تطبيق Melbet\n2️⃣ دخل على البروفيل (الأيقونة فوق)\n3️⃣ الـ ID كيبان مباشرة تحت اسمك 🔢\n\nرسله ليا وأنا نفعل ليك السكريبت دبا ✅`,
+  `الـ ID أخويا كاين في البروفيل ديالك 👤\n\n• افتح Melbet\n• دخل على حسابك\n• كتشوف الرقم تحت اسمك مباشرة 🔢\n\nرسله ليا باش نفعل ليك السكريبت 🍎`,
+];
+function getFindIDResponse(): string {
+  return FIND_ID_RESPONSES[Math.floor(Math.random() * FIND_ID_RESPONSES.length)]!;
+}
+
+// ── 19. موافقة قصيرة → ندفعه للخطوة التالية ──
+const ACK_WORDS = [
+  "واخا","واخه","اوكي","أوكي","ok","okay","mzian","مزيان","هيا",
+  "آه","أه","ايه","d'accord","oui","ouais","بسم الله","يلاه","عيوني",
+];
+function isJustAcknowledging(t: string): boolean {
+  const c = t.trim().toLowerCase().replace(/[!.؟?،,]+$/, "");
+  if (c.length > 12) return false;
+  return ACK_WORDS.some((w) => c === w);
+}
+const ACK_RESPONSES = [
+  `يلاه أخويا 😊 — الخطوة الأولى هي التسجيل في Melbet بالكود *999BOT*\n\nرسل ليا الـ ID ديالك بعد ما تكمل وأنا نفعل ليك السكريبت دبا 🍎`,
+  `بسم الله أخويا 🙌 — سجل في Melbet بالكود *999BOT* وبعث ليا الـ ID ديالك\n\nأنا هنا ننتظرك ✅`,
+  `هيا أخويا 💪 — سجل في Melbet بالكود *999BOT* وأنا نرسل ليك السكريبت مباشرة 🍎`,
+];
+function getAckResponse(): string {
+  return ACK_RESPONSES[Math.floor(Math.random() * ACK_RESPONSES.length)]!;
+}
 
 const MELBET_REGISTER_URL = "https://refpa3665.com/L?tag=d_4182345m_66335c_&site=4182345&ad=66335";
 
@@ -804,6 +881,21 @@ bot.on("message", async (msg) => {
 
       logger.info({ chatId, urgencyDelay, vipDelay }, "Scheduled agreement follow-up messages");
 
+    } else if (isReportingWin(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await bot.sendMessage(chatId, getWinReportResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled win report — congrats sent");
+
+    } else if (isThanking(userText)) {
+      await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 700)));
+      await bot.sendMessage(chatId, getThanksResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled thanks");
+
+    } else if (isAskingWhereID(userText)) {
+      await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
+      await bot.sendMessage(chatId, getFindIDResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled where-is-ID question");
+
     } else if (isCallingScam(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1200)));
       await bot.sendMessage(chatId, getScamResponse(), { parse_mode: "Markdown" });
@@ -893,6 +985,11 @@ bot.on("message", async (msg) => {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
       await bot.sendMessage(chatId, getHowToUseResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Sent how-to-use response with Melbet+999BOT");
+
+    } else if (isJustAcknowledging(userText)) {
+      await new Promise((r) => setTimeout(r, 600 + Math.floor(Math.random() * 600)));
+      await bot.sendMessage(chatId, getAckResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled short acknowledgment — pushed to register");
 
     } else if (isAskingToRegister(userText) && !downloadButtonSent.has(chatId)) {
       // سأل "منين/كيفاش نتسجل" — نبعث الأزرار
