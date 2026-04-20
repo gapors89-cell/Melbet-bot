@@ -26,6 +26,9 @@ const downloadButtonSent = new Set<number>();
 const waitingForId = new Set<number>();
 const pendingPitch = new Set<number>(); // ينتظر رد الشخص قبل الشرح
 
+// ── سجل آخر رسائل المستخدمين (للأونر) ──
+const recentMessages: { chatId: number; name: string; text: string; at: number }[] = [];
+
 // ── تتبع المواضيع ──
 const topicCounts = new Map<string, number>([
   ["تسجيل", 0],
@@ -1028,6 +1031,44 @@ bot.on("message", async (msg) => {
       return;
     }
 
+    // ── /messages [n] — آخر رسائل المستخدمين ──
+    if (userText.startsWith("/messages")) {
+      const parts = userText.split(" ");
+      const n = Math.min(parseInt(parts[1] ?? "15", 10) || 15, 50);
+      const slice = recentMessages.slice(-n).reverse();
+      if (slice.length === 0) {
+        await bot.sendMessage(chatId, "لا توجد رسائل بعد.");
+        return;
+      }
+      // نجمعو الرسائل برشلون — كل شخص في مجموعة
+      const grouped: string[] = [];
+      let lastId: number | null = null;
+      let block = "";
+      for (const m of slice.reverse()) {
+        const time = new Date(m.at).toLocaleTimeString("fr-MA", { hour: "2-digit", minute: "2-digit" });
+        if (m.chatId !== lastId) {
+          if (block) grouped.push(block.trim());
+          block = `👤 *${m.name}* (\`${m.chatId}\`)\n`;
+          lastId = m.chatId;
+        }
+        block += `  _${time}_ — ${m.text}\n`;
+      }
+      if (block) grouped.push(block.trim());
+      // نبعتوهم كل 10 بلوك باش ما يطول ما المسج
+      const chunks: string[] = [];
+      let chunk = "";
+      for (const g of grouped) {
+        if ((chunk + g).length > 3500) { chunks.push(chunk); chunk = ""; }
+        chunk += g + "\n\n";
+      }
+      if (chunk) chunks.push(chunk);
+      for (const c of chunks) {
+        await bot.sendMessage(chatId, c.trim(), { parse_mode: "Markdown" });
+        await new Promise((r) => setTimeout(r, 300));
+      }
+      return;
+    }
+
     // ── /topics — إحصائيات المواضيع ──
     if (userText === "/topics") {
       const total = [...topicCounts.values()].reduce((a, b) => a + b, 0);
@@ -1069,6 +1110,10 @@ bot.on("message", async (msg) => {
   // ── تتبع الموضوع ──
   const topic = detectTopic(userText);
   topicCounts.set(topic, (topicCounts.get(topic) ?? 0) + 1);
+
+  // ── حفظ الرسالة في السجل ──
+  recentMessages.push({ chatId, name: firstName, text: userText, at: Date.now() });
+  if (recentMessages.length > 50) recentMessages.shift(); // نبقاو غير في آخر 50
 
   try {
     await bot.sendChatAction(chatId, "typing");
