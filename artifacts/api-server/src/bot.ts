@@ -36,19 +36,30 @@ const topicCounts = new Map<string, number>([
   ["ضمان / نصب", 0],
   ["شحال نربح", 0],
   ["تحميل التطبيق", 0],
+  ["ردود قصيرة", 0],
   ["أخرى", 0],
 ]);
 
 function detectTopic(text: string): string {
-  const t = text.toLowerCase();
-  if (/تسجيل|كيفاش نسجل|سجلت|كيفاش تسجل|كيسجل|تسجل/.test(t))     return "تسجيل";
-  if (/حساب قديم|عندي حساب|الحساب ديالي قديم/.test(t))              return "حساب قديم";
-  if (/سحب|شحن|شحنت|سحبت|دفع|تحويل|فلوس/.test(t))                   return "سحب / شحن";
-  if (/ربحت|خسرت|ربح|خسارة|ما ربحتش/.test(t))                       return "ربح / خسارة";
-  if (/سكريبت|تفاحة|كيخدم|كيعطي|توقع/.test(t))                      return "السكريبت";
-  if (/آمن|نصب|خايف|خوف|ضمان|موثوق|مزور/.test(t))                   return "ضمان / نصب";
-  if (/شحال|كم|مبلغ|قيمة|كمية/.test(t))                              return "شحال نربح";
-  if (/حمل|تحميل|apk|تطبيق|نزل/.test(t))                            return "تحميل التطبيق";
+  const t = text;
+  // تسجيل
+  if (/سجل|تسجيل|نسجل|تسجلت|سجلت|compte|register|حساب جديد|داخل|دخلت|انضم|اشتركت/.test(t)) return "تسجيل";
+  // حساب قديم
+  if (/قديم|حساب قديم|عندي حساب|الحساب ديالي|compte ancien|my account/.test(t)) return "حساب قديم";
+  // سحب / شحن
+  if (/سحب|شحن|شحنت|سحبت|دفع|تحويل|فلوس|ودعت|طلعت|كريدي|recharge|depot|retrait|virement|argent|درهم|دراهم/.test(t)) return "سحب / شحن";
+  // ربح / خسارة
+  if (/ربح|ربحت|خسر|خسرت|ربحتي|ربحنا|كسبت|كسبتي|gagné|perdu|profit|gain/.test(t)) return "ربح / خسارة";
+  // السكريبت
+  if (/سكريبت|script|تفاحة|apple|كيخدم|خدام|كيعطي|توقع|prediction|signal|استعمل|نستعمل/.test(t)) return "السكريبت";
+  // ضمان / نصب
+  if (/آمن|نصب|خايف|خوف|ضمان|موثوق|مزور|confiance|fiable|arnaque|sécur|صح|صادق|حقيقي|واقعي/.test(t)) return "ضمان / نصب";
+  // شحال نربح
+  if (/شحال|كمية|مبلغ|قيمة|combien|montant|باش نربح|يمكن نربح|نكسب/.test(t)) return "شحال نربح";
+  // تحميل التطبيق
+  if (/حمل|تحميل|telecharge|download|apk|تطبيق|application|app|نزل|installer/.test(t)) return "تحميل التطبيق";
+  // لا شيء — مش سؤال حقيقي (ردود قصيرة، تحيات)
+  if (t.trim().length < 15) return "ردود قصيرة";
   return "أخرى";
 }
 const knownUsers = new Map<number, { name: string; username?: string; joinedAt: number }>();
