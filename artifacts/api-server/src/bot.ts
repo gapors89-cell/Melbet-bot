@@ -720,10 +720,12 @@ function isRegistered(text: string): boolean {
   return REGISTERED_WORDS.some((w) => clean.includes(w));
 }
 
+const SCRIPT_URL = "https://script-apple.replit.app";
+
 const SUCCESS_MESSAGES = [
-  `🎉🎊 مبروك عليك! دبا نتا من الفريق ديالنا رسمياً 🏆\n\nابدا استعمل السكريبت وشوف النتائج بنفسك — خبرنا بعدين بشحال ربحت! 💪`,
-  `🥳 أهلاً وسهلاً بيك رسمياً! دبا عندك وصول للسكريبت 🎯\n\nالتوقعات الصحيحة غادي تبدا تشوفها — بالتوفيق! 🍀💰`,
-  `✅ برافو عليك! القرار ديالك صحيح 💯\n\nدبا استعمل السكريبت واتصل بينا إذا محتاج مساعدة — كنتو معاك! 🤝`,
+  `🎉🎊 مبروك أخويا! دبا نتا من الفريق ديالنا رسمياً 🏆\n\nهاد هو رابط السكريبت ديالك 👇`,
+  `🥳 أهلاً وسهلاً بيك رسمياً! حسابك تم التحقق منه ✅\n\nهاد هو رابط السكريبت ديالك 👇`,
+  `✅ برافو أخويا! كملت الخطوات صح 💯\n\nهاد هو رابط سكريبت التفاحة ديالك 👇`,
 ];
 
 function getSuccessMsg(): string {
@@ -912,6 +914,13 @@ bot.on("message", async (msg) => {
           registeredUsers.add(chatId);
           logger.info({ chatId, melbetId }, "New Melbet account confirmed");
           await bot.sendMessage(chatId, getSuccessMsg(), { parse_mode: "Markdown" });
+          // إرسال رابط السكريبت مباشرة بعد المبروك
+          await bot.sendMessage(chatId, `🍎 *سكريبت التفاحة — رابطك الخاص:*\n\n${SCRIPT_URL}\n\n_ابدا فيه دبا وخبرني بشحال ربحت 💰_`, {
+            parse_mode: "Markdown",
+            reply_markup: {
+              inline_keyboard: [[{ text: "🍎 فتح السكريبت", url: SCRIPT_URL }]],
+            },
+          });
           // إشعار الأونر بتسجيل ناجح
           const u = knownUsers.get(chatId);
           const uname = u?.username ? `@${u.username}` : `\`${chatId}\``;
