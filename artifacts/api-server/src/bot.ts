@@ -188,12 +188,14 @@ function getHowToUseResponse(): string {
 }
 
 // ══════════════════════════════════════════════════════
-// ── 1. كشف الشك "واش حقيقية / السكريبت خايب / واش كاين ربح" ──
+// ── 1. الشك ──
 const DOUBT_WORDS = [
-  "حقيقية", "حقيقي", "واش صح", "واش كاين ربح", "خايب", "ما كيخدمش", "ما كايناش",
-  "كذب", "كاذب", "مو حقيقي", "مزيفة", "مزيف", "ما نصدقش", "ما صدقتش",
-  "واش ناس ربحو", "واش شي حد ربح", "دليل", "برهان",
-  "c'est faux", "c'est fake", "fake", "arnaque partielle",
+  "حقيقية","حقيقي","واش صح","واش كاين ربح","خايب","ما كيخدمش","ما كايناش",
+  "كذب","كاذب","مو حقيقي","مزيفة","مزيف","ما نصدقش","ما صدقتش",
+  "واش ناس ربحو","واش شي حد ربح","دليل","برهان","واش تجرب","واش يصلح",
+  "واش حقيقي","مو واثق","متردد","ما مصدقش","واش شي حد جرب",
+  "واش هادا صحيح","ما صدقتوش","صحيح واش","مصدق","واش كاين","واش يخدم",
+  "c'est faux","c'est fake","fake","vraiment","c'est vrai","pour de vrai",
 ];
 function isDoubting(text: string): boolean {
   const c = text.trim().toLowerCase();
@@ -204,35 +206,41 @@ const DOUBT_RESPONSES = [
   `أخويا واضح مترددشوية 😄 — عادي!\n\nولكن اعلم بلي ناس قبلك استعملو السكريبت وربحو بالفعل 💰 حتى واحد ما جا يقولي "خسرت" — الربح مضمون ما دمت استعملت السكريبت صح ✅`,
   `أخويا مفهوم التردد 🤝 ولكن الحقيقة بانة!\n\nالناس اللي جربوا ما ندموش — جامي واحد رجع يشتكي 🔴 السكريبت كيخدم وكيبان النتائج بنفسها 🍎`,
   `الربح كاين أخويا ما فيهش شك 💯\n\nكنعطي السكريبت مجاناً — واش عاقل يعطيك حاجة مجانية ويكون نصاب؟ 😄 جرب وشوف بنفسك الدليل هو ما غتشوفو بعيناك 👀`,
+  `أخويا الدليل هو الناس اللي معانا 😊 — كل يوم كاين ناس يربحو\n\nجرب براحتك وشوف النتيجة بنفسك — السكريبت مجاني ما غتخسر والو 🍎`,
 ];
 function getDoubtResponse(): string {
   return DOUBT_RESPONSES[Math.floor(Math.random() * DOUBT_RESPONSES.length)]!;
 }
 
-// ── 2. كشف "ما عنديش فلوس / ما قادرش نشارج / ما عندي بطاقة" ──
+// ── 2. ما عنديش فلوس ──
 const NO_MONEY_WORDS = [
-  "ما عنديش فلوس", "ما عنديش دراهم", "ما قادرش نشارج", "ما عندي بطاقة",
-  "ما عندي كارط", "ما كاينش فلوس", "فلوس ما عندهاش", "بلا فلوس",
-  "ما كاينش دراهم", "خاوية", "ما قادرش", "مشارجش",
-  "pas d'argent", "pas de carte", "je peux pas recharger",
+  "ما عنديش فلوس","ما عنديش دراهم","ما قادرش نشارج","ما عندي بطاقة",
+  "ما عندي كارط","ما كاينش فلوس","فلوس ما عندهاش","بلا فلوس",
+  "ما كاينش دراهم","خاوية","مشارجش","ما عندي ما نشارج",
+  "ما قادرش نعمل إيداع","ما قادرش ندخل فلوس","فلوس خاوي",
+  "pas d'argent","pas de carte","je peux pas recharger","j'ai pas d'argent",
 ];
 function hasNoMoney(text: string): boolean {
-  return NO_MONEY_WORDS.some((w) => text.trim().toLowerCase().includes(w));
+  const c = text.trim().toLowerCase();
+  if (isAskingSmallAmount(c)) return false;
+  return NO_MONEY_WORDS.some((w) => c.includes(w));
 }
 const NO_MONEY_RESPONSES = [
   `أخويا الفلوس اللي غتحتاجها هي باش تلعب *في حسابك أنت* — مغتبعتهاش ليا أنا 😄\n\nواش المشكل بلي ما قادرش تشارجي الحساب؟ خبرني السبب نساعدك 💪\n\nإلا محتاج حد يشارج ليك، هاد الشخص يقدر يعاونك: *0614947612* 📲`,
   `أخويا السكريبت مجاني بالكامل 🎁 — ما خاصكش تبعث ليا حتى درهم!\n\nالفلوس غتحتاجها فقط باش تلعب في *حسابك في Melbet* 🎯\n\nإلا مشكل في الشارج، كلم هاد الرقم يعاونك: *0614947612* 📞`,
+  `أخويا ما طلبت منك والو 😊 السكريبت مجاني\n\nالفلوس اللي تحتاجها غير للعب في حسابك — إلا بغيتي حد يعاونك على الشارج، هاد الرقم: *0614947612* 📲`,
 ];
 function getNoMoneyResponse(): string {
   return NO_MONEY_RESPONSES[Math.floor(Math.random() * NO_MONEY_RESPONSES.length)]!;
 }
 
-// ── 3. كشف "غدا / بعدين / ما عنديش وقت" ──
+// ── 3. تأجيل ──
 const DELAY_WORDS = [
-  "غدا", "بعدين", "بعد شوية", "ما عنديش وقت", "مشغول", "دابا لا",
-  "نجي بعد", "منجيش دبا", "نرجع ليك", "نكلمك غدا", "نجي غدا",
-  "plus tard", "demain", "pas maintenant", "j'ai pas le temps",
-  "tomorrow", "later", "not now", "no time",
+  "غدا","بعدين","بعد شوية","ما عنديش وقت","مشغول","دابا لا",
+  "نجي بعد","منجيش دبا","نرجع ليك","نكلمك غدا","نجي غدا",
+  "نهار آخر","وقت آخر","بعد نهار","مزبوطش دبا","دابا مشي",
+  "plus tard","demain","pas maintenant","j'ai pas le temps",
+  "tomorrow","later","not now","no time","busy",
 ];
 function isDelaying(text: string): boolean {
   return DELAY_WORDS.some((w) => text.trim().toLowerCase().includes(w));
@@ -241,16 +249,18 @@ const DELAY_RESPONSES = [
   `أخويا خذ وقتك مزربانينك 😊\n\nغير ما تلومنيش إلى رجعتي ولقيتي الفترة المجانية انتهات ⏳ — الأماكن محدودة وكتنقص كل يوم 🔴`,
   `عادي أخويا وقتك محترم 🤝\n\nغير احفظ هاد الكود: *999BOT* — هو اللي غتحتاجو فاش تتسجل في Melbet\n\nما تفوتش الفرصة، الفترة المجانية ماشي دايمة ⏰`,
   `مفهوم أخويا 😄 خذ راحتك\n\nغير اعرف بلي الفترة المجانية محدودة — الناس اللي تسرعوا هما اللي استفادوا ✅ رجع متى بغيتي وأنا هنا 🙌`,
+  `واضح أخويا 🙌 أنا هنا دايمًا\n\nغير لا تنسى — السكريبت مو للأبد، جي فاش يتسنى ليك 🔔`,
 ];
 function getDelayResponse(): string {
   return DELAY_RESPONSES[Math.floor(Math.random() * DELAY_RESPONSES.length)]!;
 }
 
-// ── 4. كشف "واش كاين ضمان / غنخسر / كاين خطر" ──
+// ── 4. ضمان / خطر / خسارة ──
 const RISK_WORDS = [
-  "ضمان", "غنخسر", "نخسر", "خسارة", "كاين خطر", "خطر", "ما مضمونش",
-  "مضمون", "واش مضمون", "واش غنربح", "واش ممكن نخسر",
-  "garantie", "risque", "je vais perdre", "c'est risqué",
+  "ضمان","غنخسر","نخسر","خسارة","كاين خطر","خطر","ما مضمونش",
+  "مضمون","واش مضمون","واش غنربح","واش ممكن نخسر",
+  "واش تفوتني فلوس","مخاطرة","واش نخاطر","نخاطر","نضيع فلوسي",
+  "garantie","risque","je vais perdre","c'est risqué","je risque quoi",
 ];
 function isAskingRisk(text: string): boolean {
   return RISK_WORDS.some((w) => text.trim().toLowerCase().includes(w));
@@ -259,16 +269,18 @@ const RISK_RESPONSES = [
   `أخويا السكريبت مجاني — *مغتخسر والو* 💯\n\nالخسارة كتجي غير فاش تلعب *بدون* السكريبت 🎯 مع السكريبت النتائج كتتغير بالكامل\n\nتبغي دليل؟ نرسل ليك صور ديال الأرباح اللي داروها الناس عندنا 📸`,
   `مكاين حتى خطر أخويا 😌 السكريبت مجاني — مغتخسر حتى درهم فيه\n\nالمال اللي كتلعب بيه هو ديالك في حسابك — والسكريبت كيعطيك توقعات صحيحة باش تربح أكثر مما تخسر ✅`,
   `الضمان أخويا هو السكريبت نفسه 🍎\n\nما شفتيش واحد من عندنا قال "خسرت" — الدليل عندي صور واضحة نرسلهم ليك دبا 📲 شوف وعقل بنفسك 💪`,
+  `أخويا الخطر الوحيد هو ما تجربش 😄 — السكريبت مجاني بالكامل\n\nالفلوس ديالك في حسابك — والسكريبت كيعطيك التوقع الصح باش تربح ✅`,
 ];
 function getRiskResponse(): string {
   return RISK_RESPONSES[Math.floor(Math.random() * RISK_RESPONSES.length)]!;
 }
 
-// ── 5. كشف "scam / نصاب / ما نثقش فيك" ──
+// ── 5. نصاب / scam ──
 const SCAM_WORDS = [
-  "scam", "نصاب", "نصابة", "تنصب", "سرقة", "كتسرق", "ما نثقش",
-  "ما واثقش", "ما صدقتكش", "غاشش", "غاش", "arnaque", "escroc",
-  "vous êtes un escroc", "c'est une arnaque", "kzab", "كذاب",
+  "scam","نصاب","نصابة","تنصب","سرقة","كتسرق","ما نثقش",
+  "ما واثقش","ما صدقتكش","غاشش","غاش","arnaque","escroc",
+  "c'est une arnaque","kzab","كذاب","غشاش","واش غاش","واش نصاب",
+  "ما نامنش","ما واثقش فيك","مو واثق فيك",
 ];
 function isCallingScam(text: string): boolean {
   return SCAM_WORDS.some((w) => text.trim().toLowerCase().includes(w));
@@ -277,6 +289,7 @@ const SCAM_RESPONSES = [
   `أخويا كيفاش نكون نصاب 😅 — السكريبت *مجاني بالكامل* ما طلبت منك حتى درهم!\n\nإلا كاين شي واحد يقول بلي نصبت عليه — قوله يرسل ليا الدليل دبا وأنا نرد ليه فلوسو *بالضعف* 💯\n\nعلاش مغتيقش؟ حتى درهم مطلبتوش منك 🤝`,
   `أخويا 😄 عاقل يرسل ليك حاجة مجانية وبعدين ينصب عليك؟\n\nإلا شي حد اشتكى مني — *رسل ليا الدليل دبا* وأنا نعوضو بالضعف ✅\n\nالسكريبت مجاني، الربح هو الهدف — ما كاينش هنا غير للمساعدة 🙌`,
   `أخويا راه مقلت لك *مغترسلهالي حتى درهم* 😌 السكريبت مجاني بالكامل\n\nإلا عندك شك — قل ليا منين جاك وأنا نوضح ليك 💬\n\nالناس اللي شكاو ما كاينين، وإلا كانوا يجيبو الدليل نرد ليهم فلوسهم بالضعف 💯`,
+  `أخويا ثقتك مهمة عندي 🤝 — هاد الحاجة مجانية 100%\n\nإلا كاين شك عندك خبرني ومن وين جاك وأنا نوضحلك كل شيء 😊`,
 ];
 function getScamResponse(): string {
   return SCAM_RESPONSES[Math.floor(Math.random() * SCAM_RESPONSES.length)]!;
@@ -285,8 +298,9 @@ function getScamResponse(): string {
 // ── 6. شحال يمكن نربح ──
 const HOW_MUCH_WORDS = [
   "شحال ربحت","شحال يمكن نربح","شحال كيربح","شحال الربح","كتير ربحو",
+  "بشحال يربح","بشحال كيجي","شحال يجي","شحال يعطي","شحال تربح",
   "combien on peut gagner","combien tu as gagné","combien ça rapporte",
-  "how much","how many",
+  "how much","combien gagner",
 ];
 function isAskingHowMuch(t: string): boolean {
   return HOW_MUCH_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -295,17 +309,19 @@ const HOW_MUCH_RESPONSES = [
   `أخويا الربح كيكون على حساب الإيداع اللي درتي 💰\n\nالناس اللي عرفوا كيفاش يستغلو السكريبت بذكاء ربحوا الملايين 🏆 — كلما زاد إيداعك زاد ربحك ✅`,
   `مكاين حد واحد الجواب أخويا 😄 — الربح كيتحسب على حساب اللي كتلعب بيه\n\nناس ربحوا بزاف بزاف بالسكريبت لأنهم عرفوا كيفاش يديروه 🍎 الأهم تبدا تجرب 💪`,
   `أخويا ربح واحد ربح الملايين لأنه لعب بذكاء مع السكريبت 🎯\n\nما كاينش سقف للربح — كلما زاد إيداعك وخدمت التوقعات، كيزيد الربح 💰`,
+  `الجواب بسيط أخويا 😊 — كلما إيداعك كبر، الربح كبر\n\nالسكريبت كيعطيك التوقع الصح — أنت اللي تقرر شحال تلعب 🍎`,
 ];
 function getHowMuchResponse(): string {
   return HOW_MUCH_RESPONSES[Math.floor(Math.random() * HOW_MUCH_RESPONSES.length)]!;
 }
 
-// ── 7. عندي حساب قديم في Melbet (قبل ما يبعث الـ ID) ──
+// ── 7. عندي حساب قديم في Melbet ──
 const OLD_ACCOUNT_MENTION_WORDS = [
   "عندي حساب فيه","عندي حساب في ميلبيت","عندي حساب في melbet",
   "كنلعب فيه","كنلعب من مدة","كاين عندي حساب","مسجل فيه",
   "j'ai déjà un compte","j'ai un compte melbet","already have account",
-  "عندي اكونت","عندي اكاونت",
+  "عندي اكونت","عندي اكاونت","عندي compte","مسجل من قبل",
+  "عندي ID قديم","عندي حساب قديم","سجلت من قبل","كنت عندي حساب",
 ];
 function mentionsOldAccount(t: string): boolean {
   const c = t.trim().toLowerCase();
@@ -315,6 +331,7 @@ const OLD_ACCOUNT_MENTION_RESPONSES = [
   `أخويا الحساب القديم ما ينفعكش مع السكريبت 🚫\n\nخاصك *حساب جديد في Melbet* — ومهم بزاف تسجل بالكود *999BOT* باش تقدر تستافد من السكريبت بشكل كامل 🎯`,
   `الحساب القديم ما كيخدمش أخويا ⛔ السكريبت مرتبط بالحسابات الجديدة فقط\n\nسجل حساب جديد دبا بالكود *999BOT* وبعث ليا الـ ID وغادي نفعل ليك السكريبت 🍎`,
   `أخويا ضروري يكون *حساب جديد* 🔑 — الحساب القديم ما يقدرش يوصل للسكريبت\n\nافتح واحد جديد في Melbet بالكود *999BOT* وأنا نكون هنا نساعدك ✅`,
+  `أخويا كنفهمك ولكن الحساب القديم مشكلتو أنه مرتبطش بالسيستام الجديد 🔴\n\nغير حساب جديد بالكود *999BOT* وكيخدم معك مباشرة 🍎`,
 ];
 function getOldAccountMentionResponse(): string {
   return OLD_ACCOUNT_MENTION_RESPONSES[Math.floor(Math.random() * OLD_ACCOUNT_MENTION_RESPONSES.length)]!;
@@ -322,8 +339,9 @@ function getOldAccountMentionResponse(): string {
 
 // ── 8. iOS / iPhone / App Store ──
 const IOS_WORDS = [
-  "iphone","ios","app store","آيفون","ايفون","apple store",
-  "ipad","متاح على ايفون","واش كاين على ايفون",
+  "iphone","ios","app store","آيفون","ايفون","apple store","ipad",
+  "متاح على ايفون","واش كاين على ايفون","واش يخدم على ايفون",
+  "هاتف ايفون","على ios","من ايفون","كيخدم على ايفون",
 ];
 function isAskingIOS(t: string): boolean {
   return IOS_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -331,16 +349,18 @@ function isAskingIOS(t: string): boolean {
 const IOS_RESPONSES = [
   `أخويا السكريبت ماشي تطبيق — هو *رابط* كيخدم من المتصفح مباشرة 🌐\n\nيعني يشتغل معك على iPhone أو Android أو أي جهاز — غير افتح المتصفح وكيخدم ✅`,
   `مكاينش مشكل أخويا 😄 السكريبت رابط إنترنت — يشتغل من المتصفح على أي هاتف\n\nما تحتاجش تحمل حتى حاجة — غير سجل في Melbet بالكود *999BOT* وأنا نرسل ليك الرابط 🍎`,
+  `آه أخويا iPhone يخدم بشكل ممتاز 📱\n\nالسكريبت رابط — كيفتحو من Safari أو Chrome مباشرة بدون تحميل ✅`,
 ];
 function getIOSResponse(): string {
   return IOS_RESPONSES[Math.floor(Math.random() * IOS_RESPONSES.length)]!;
 }
 
-// ── 9. عطيني السكريبت بلا Melbet / بدون تسجيل ──
+// ── 9. عطيني السكريبت بلا Melbet ──
 const NO_REGISTER_WORDS = [
   "بلا melbet","بدون melbet","بلا ميلبيت","بدون تسجيل","بدون حساب",
   "عطيني السكريبت غير هكا","السكريبت بدون","sans melbet","sans inscription",
   "without melbet","without registering","just give me",
+  "بدون ما نسجل","عطيني الرابط غير هكا","السكريبت ببلاش",
 ];
 function wantsScriptFree(t: string): boolean {
   return NO_REGISTER_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -349,16 +369,18 @@ const SCRIPT_FREE_URL = "https://script-apple.replit.app";
 const NO_REGISTER_RESPONSES = [
   `أخويا ممكن نرسل ليك الرابط دبا 🔗 ${SCRIPT_FREE_URL}\n\nولكن بدون حساب جديد في Melbet بالكود *999BOT*، السكريبت مغيعطيكش حتى توقع صحيح ⚠️\n\nباش تشوف النتائج الحقيقية خاصك الحساب الجديد 🎯`,
   `واضح أخويا 😄 الرابط هو: ${SCRIPT_FREE_URL}\n\nولكن من غير حساب Melbet جديد بالكود *999BOT* — السكريبت ما يعطيكش التوقعات الصحيحة\n\nالسر كلو في الحساب الجديد + الكود *999BOT* 🔑`,
+  `أخويا الرابط موجود: ${SCRIPT_FREE_URL} 🔗\n\nولكن باش يكون فعّال خاصك حساب جديد في Melbet بالكود *999BOT* — بدونو السكريبت ما يكملش التوقعات ⚠️`,
 ];
 function getNoRegisterResponse(): string {
   return NO_REGISTER_RESPONSES[Math.floor(Math.random() * NO_REGISTER_RESPONSES.length)]!;
 }
 
-// ── 10. شنو هو Melbet / كازينو / حلال ──
+// ── 10. حلال / كازينو / شنو هو Melbet ──
 const HALAL_WORDS = [
   "حلال","حرام","شنو هو melbet","شنو هو ميلبيت","واش كازينو",
   "كازينو","مراهنة","مراهنات","c'est quoi melbet","c'est halal",
   "c'est haram","c'est un casino","what is melbet","is it halal",
+  "واش مسموح","واش جايز","ديني","إسلامي","واش كيحل",
 ];
 function isAskingHalal(t: string): boolean {
   return HALAL_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -366,6 +388,7 @@ function isAskingHalal(t: string): boolean {
 const HALAL_RESPONSES = [
   `أخويا الربح حلال 100% 💯\n\nلأننا ما كنراهنوش — كنلعبو بتوقعات *مضمونة* من السكريبت 🍎\n\nالفرق كبير: المراهنة عشوائية، أما نحن كنلعبو بمعطيات ودراسة ✅`,
   `أخويا مفهوم السؤال 😊 — الربح حلال لأنك ما كتراهنش عشوائي\n\nالسكريبت كيعطيك التوقع الصح قبل اللعب — يعني كتلعب بمعلومة مو بالحظ 🎯\n\nهاد الفرق هو اللي كيخلي الربح مضمون ومقبول ✅`,
+  `سؤال مهم أخويا 🤝 — كنلعبو مو كنراهنو\n\nالسكريبت كيعطينا التوقع الصح مسبقًا — هكاك الربح كيجي بالعلم مو بالحظ 💯`,
 ];
 function getHalalResponse(): string {
   return HALAL_RESPONSES[Math.floor(Math.random() * HALAL_RESPONSES.length)]!;
@@ -373,9 +396,11 @@ function getHalalResponse(): string {
 
 // ── 11. مبلغ صغير / بدا بقليل ──
 const SMALL_AMOUNT_WORDS = [
-  "سوما صغيرة","مبلغ صغير","بـ 20","بـ 50","بـ 30","بـ 10","بقليل",
-  "ما عنديش بزاف","بزاف ما عندي","درهم","avec peu","petit montant",
-  "small amount","peu d'argent","50 درهم","100 دрахم","20 درهم","30 درهم",
+  "سوما صغيرة","مبلغ صغير","بقليل","ما عنديش بزاف","بزاف ما عندي",
+  "واش نقدر نلعب بـ","واش نقدر بـ","بـ 20","بـ 50","بـ 30","بـ 10","بـ 100",
+  "avec peu","petit montant","small amount","peu d'argent",
+  "50 درهم","20 درهم","30 درهم","100 درهم","200 درهم",
+  "مبلغ بسيط","بداية صغيرة","بشي صغير",
 ];
 function isAskingSmallAmount(t: string): boolean {
   return SMALL_AMOUNT_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -383,6 +408,7 @@ function isAskingSmallAmount(t: string): boolean {
 const SMALL_AMOUNT_RESPONSES = [
   `أخويا تقدر تبدا بأي مبلغ بغيتي 😊 — هادا اختيارك أنت\n\nالمهم هو السكريبت اللي كيعطيك التوقع الصح، مهما كان المبلغ ✅`,
   `بدا بشحال ما بغيتي أخويا 💰 — ما كاينش حد مينيموم\n\nكلما زاد المبلغ كلما زاد الربح — ولكن ابدا براحتك 😊`,
+  `أخويا ما كاينش حد مينيموم 🙌 — تقدر تبدا بـ 20 درهم أو بـ 200 درهم\n\nالسكريبت كيخدم مع أي مبلغ، الاختيار ديالك ✅`,
 ];
 function getSmallAmountResponse(): string {
   return SMALL_AMOUNT_RESPONSES[Math.floor(Math.random() * SMALL_AMOUNT_RESPONSES.length)]!;
@@ -390,8 +416,9 @@ function getSmallAmountResponse(): string {
 
 // ── 12. كمبيوتر / لابطوب ──
 const COMPUTER_WORDS = [
-  "كمبيوتر","لابطوب","laptop","computer","pc","ordinateur","من الكمبيوتر",
-  "من اللابطوب","على الكمبيوتر","pc portable",
+  "كمبيوتر","لابطوب","laptop","computer","pc","ordinateur",
+  "من الكمبيوتر","من اللابطوب","على الكمبيوتر","pc portable",
+  "من الحاسوب","على الحاسوب","واش يخدم على كمبيوتر",
 ];
 function isAskingComputer(t: string): boolean {
   return COMPUTER_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -399,16 +426,18 @@ function isAskingComputer(t: string): boolean {
 const COMPUTER_RESPONSES = [
   `آه أخويا تقدر تستعمله من الكمبيوتر أو اللابطوب بدون أي مشكل 💻\n\nالسكريبت رابط إنترنت — كيخدم على أي متصفح من أي جهاز ✅`,
   `بالطبع أخويا 😊 الكمبيوتر واللابطوب يخدمو بشكل ممتاز\n\nغير افتح المتصفح وبدا — السكريبت ما محتاجش تحميل أي حاجة 💻`,
+  `آه أخويا من الكمبيوتر أحسن بزاف 💻 — الشاشة الكبيرة تسهل الأمور\n\nغير افتح المتصفح وكيخدم مباشرة ✅`,
 ];
 function getComputerResponse(): string {
   return COMPUTER_RESPONSES[Math.floor(Math.random() * COMPUTER_RESPONSES.length)]!;
 }
 
-// ── 13. شنو هو سكريبت التفاحة / علاش التفاحة ──
+// ── 13. شنو هو سكريبت التفاحة ──
 const APPLE_SCRIPT_WORDS = [
   "شنو هو السكريبت","شنو السكريبت","علاش سميتيه تفاحة","شنو التفاحة",
   "apple of fortune","تفاحة علاش","علاقتو بالتفاحة","c'est quoi le script",
   "what is the script","شنو هي التفاحة","علاش تفاحة",
+  "شنو هي اللعبة","علاش سكريبت","فاش كيخدم السكريبت","شنو هو",
 ];
 function isAskingAboutApple(t: string): boolean {
   return APPLE_SCRIPT_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -416,6 +445,7 @@ function isAskingAboutApple(t: string): boolean {
 const APPLE_SCRIPT_RESPONSES = [
   `أخويا السكريبت ديال التفاحة كيعطيك توقعات دقيقة للعبة *Apple of Fortune* فـ Melbet 🍎\n\nهادي لعبة موجودة في Melbet — والسكريبت كيحلل النتائج ويعطيك التوقع الصح قبل كل جولة ✅`,
   `*Apple of Fortune* هي لعبة في Melbet 🍎 — والسكريبت ديالنا كيدرس النتائج ويعطيك التوقع الدقيق\n\nعلاش سميناه التفاحة؟ لأنه مرتبط بهادي اللعبة بالضبط 🎯`,
+  `أخويا السكريبت بسيط — هو أداة كتعطيك التوقع قبل كل جولة في لعبة *Apple of Fortune* 🍎\n\nبدلاً من اللعب بالحظ، كتلعب بتوقع مدروس 💡`,
 ];
 function getAppleScriptResponse(): string {
   return APPLE_SCRIPT_RESPONSES[Math.floor(Math.random() * APPLE_SCRIPT_RESPONSES.length)]!;
@@ -425,6 +455,7 @@ function getAppleScriptResponse(): string {
 const GROUP_WORDS = [
   "قروب","مجموعة","groupe","group","تيليغرام قروب","واتساب قروب",
   "كاين قروب","فيه مجموعة","telegram group","whatsapp group",
+  "كاين channel","كاين قناة","قناة تيليغرام","كاين جماعة",
 ];
 function isAskingGroup(t: string): boolean {
   return GROUP_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -432,17 +463,19 @@ function isAskingGroup(t: string): boolean {
 const GROUP_RESPONSES = [
   `أخويا القروب قريب نديروه 🔜\n\nفاش يكون جاهز غادي نخبرك مباشرة 📢 استنى شوية وكن من الأوائل اللي ينضمو 💪`,
   `القروب غادي يكون قريب أخويا 😊 — سيكون فيه كل التحديثات والتوقعات مباشرة\n\nغادي نبعث ليك الرابط فاش يكون جاهز ✅`,
+  `أخويا القروب تحت الإنشاء 🔧 — قريب نطلقوه\n\nأنت من الأوائل اللي يعرفو — غادي نبعث ليك مباشرة فاش يكون جاهز 📢`,
 ];
 function getGroupResponse(): string {
   return GROUP_RESPONSES[Math.floor(Math.random() * GROUP_RESPONSES.length)]!;
 }
 
-// ── 15. مساعدة / مشكل / سابور ──
+// ── 15. مساعدة / مشكل ──
 const HELP_WORDS = [
   "مساعدة","نساعدني","عندي مشكل","مشكل","مشكلة","ما خدمش","ما فهمتش",
   "ما قدرتش","محتاج مساعدة","aide","problème","j'ai un problème",
   "ça marche pas","ça fonctionne pas","help","problem","issue",
-  "عندي سوال","عندي سؤال",
+  "عندي سوال","عندي سؤال","محتاج مساعدك","ما عرفتش","ما فهمتش",
+  "واش تعاوني","عاوني","شنو دير","ما قدرتش تسجل",
 ];
 function isAskingHelp(t: string): boolean {
   return HELP_WORDS.some((w) => t.trim().toLowerCase().includes(w));
@@ -450,10 +483,8 @@ function isAskingHelp(t: string): boolean {
 const HELP_RESPONSES = [
   `أخويا أنا هنا 🤝 أي مشكل حصل ليك قولي عليه بالتفصيل وأنا نعاونك دبا\n\nما تتردد — أنا هنا باش نحل ليك أي حاجة ✅`,
   `خبرني شنو المشكل أخويا 💬 — نحاول نحلو معاك دبا\n\nما كاينش مشكل كبير ما ينحلش 😊`,
+  `أخويا أنا موجود 😊 — قلي شنو حصل ليك وأنا نساعدك خطوة خطوة 🤝`,
 ];
-function getHelpResponse(): string {
-  return HELP_RESPONSES[Math.floor(Math.random() * HELP_RESPONSES.length)]!;
-}
 
 const MELBET_REGISTER_URL = "https://refpa3665.com/L?tag=d_4182345m_66335c_&site=4182345&ad=66335";
 
