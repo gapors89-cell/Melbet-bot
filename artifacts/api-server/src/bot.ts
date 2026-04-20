@@ -135,6 +135,8 @@ setInterval(async () => {
 const ghostMessageSent   = new Set<number>();
 const dailyBroadcastSent = new Map<number, string>(); // chatId → last date string
 const morningMsgSent     = new Map<number, string>(); // chatId → last date string
+const scriptSentTime     = new Map<number, number>(); // chatId → timestamp when script sent
+const followUpSent       = new Set<number>();          // chatId → follow-up after 2 days sent
 
 const DAILY_BROADCAST_MSGS = [
   `أخويا 🔥 غير دبا واحد من عندنا ربح بالسكريبت ديال التفاحة\n\nأنت مازلت ما جربتيش؟ الفرصة محدودة — سجل في Melbet بالكود *999BOT* وأنا نرسل ليك السكريبت 🍎`,
@@ -206,6 +208,25 @@ setInterval(async () => {
           await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
           ghostMessageSent.add(chatId);
           logger.info({ chatId }, "Sent ghost follow-up message");
+          await delay(200);
+        } catch { /* ignore */ }
+      }
+    }
+
+    // 4️⃣ متابعة بعد التسجيل — بعد يومين من إرسال السكريبت
+    if (registeredUsers.has(chatId) && !followUpSent.has(chatId)) {
+      const sentAt = scriptSentTime.get(chatId) ?? 0;
+      if (sentAt > 0 && nowMs - sentAt >= 48 * 60 * 60 * 1000) {
+        const FOLLOW_UP_MSGS = [
+          `أخي 😄 واش بديتي تستعمل السكريبت؟ شحال ربحتي حتى دبا؟`,
+          `هيا أخي — واش السكريبت خدم معاك؟ حيت بزاف من الناس ربحوا من أول يوم 🔥`,
+          `أخي واش كل شيء زوين مع السكريبت؟ خبرني بالنتائج 💰`,
+        ];
+        try {
+          const msg = FOLLOW_UP_MSGS[Math.floor(Math.random() * FOLLOW_UP_MSGS.length)]!;
+          await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
+          followUpSent.add(chatId);
+          logger.info({ chatId }, "Sent 2-day follow-up after script");
           await delay(200);
         } catch { /* ignore */ }
       }
@@ -812,6 +833,88 @@ bot.on("callback_query", async (query) => {
       `بعد ما تسجل، قول ليا *"سجلت"* وغادي نعطيك وصول للسكريبت مباشرة 🚀`;
     await bot.sendMessage(chatId, helpMsg, { parse_mode: "Markdown" });
   }
+
+  // ── أزرار الترحيب ──
+  if (query.data === "welcome_no_account") {
+    await bot.answerCallbackQuery(query.id);
+    await bot.sendMessage(chatId,
+      `مزيان أخي 👍 — الخطوة الأولى هي تحميل تطبيق Melbet\n\nوالمهم: عند التسجيل دخل الكود *999BOT* — بلاشو السكريبت مكيخدمش معاك 🔑`,
+      {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "⬇️ حمل تطبيق Melbet", url: MELBET_APK_URL }],
+            [{ text: "🔗 سجل من الموقع", url: MELBET_REGISTER_URL }],
+            [{ text: "✅ سجلت — عندي ID", callback_data: "welcome_has_account" }],
+          ],
+        },
+      }
+    );
+  }
+
+  if (query.data === "welcome_has_account") {
+    await bot.answerCallbackQuery(query.id);
+    waitingForId.add(chatId);
+    await bot.sendMessage(chatId,
+      `ممتاز 🎉 — بعث ليا الـ *ID* ديالك في Melbet دبا باش نتحقق وأنا نرسل ليك السكريبت 👇\n\n_كاين فالإعدادات > معلوماتي الشخصية_`,
+      { parse_mode: "Markdown" }
+    );
+  }
+
+  if (query.data === "welcome_old_account") {
+    await bot.answerCallbackQuery(query.id);
+    await bot.sendMessage(chatId,
+      `أخي الحساب القديم ما ينفعكش ⛔ — السكريبت مكيخدمش مع حسابات قديمة\n\nوالأهم: خاصك تسجل الحساب الجديد *بالكود 999BOT* بالضبط — بلاشو مكيعطيكش التوقعات الصحيحة 🔑`,
+      {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "⬇️ سجل حساب جديد", url: MELBET_APK_URL }],
+            [{ text: "✅ سجلت حساب جديد", callback_data: "welcome_has_account" }],
+          ],
+        },
+      }
+    );
+  }
+
+  // ── زر "عندي سؤال آخر" ──
+  if (query.data === "ask_question") {
+    await bot.answerCallbackQuery(query.id);
+    await bot.sendMessage(chatId, `واش بغيتي تعرف؟ 😊`, {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "💰 شحال يمكن نربح؟", callback_data: "q_howmuch" }],
+          [{ text: "🔒 واش هاد الشي آمن؟", callback_data: "q_safe" }],
+          [{ text: "📲 كيفاش نتسجل؟", callback_data: "welcome_no_account" }],
+          [{ text: "⏳ واش السكريبت دايما مجاني؟", callback_data: "q_free" }],
+        ],
+      },
+    });
+  }
+
+  if (query.data === "q_howmuch") {
+    await bot.answerCallbackQuery(query.id);
+    await bot.sendMessage(chatId,
+      `الربح كيتحدد على حساب اللي كتلعب بيه أخي 💰\n\nناس ربحوا من أول يوم بأقل من 100 درهم — الأهم تخدم التوقعات ديال السكريبت بذكاء 🍎`,
+      { parse_mode: "Markdown" }
+    );
+  }
+
+  if (query.data === "q_safe") {
+    await bot.answerCallbackQuery(query.id);
+    await bot.sendMessage(chatId,
+      `واه آمن 100% أخي 😊 — ما طلبنا منك حتى درهم، الفلوس كتبقى عندك في حسابك\n\nالسكريبت غير كيعطيك التوقع الصح، أنت اللي كتقرر 🔑`,
+      { parse_mode: "Markdown" }
+    );
+  }
+
+  if (query.data === "q_free") {
+    await bot.answerCallbackQuery(query.id);
+    await bot.sendMessage(chatId,
+      `دبا مجاني أخي — ولكن الفترة المحدودة مش غادي تبقى دايمًا ⏳\n\nاستغل الفرصة وسجل في Melbet بالكود *999BOT* قبل ما تنتهي 🍎`,
+      { parse_mode: "Markdown" }
+    );
+  }
 });
 
 bot.on("photo", async (msg) => {
@@ -962,10 +1065,14 @@ bot.on("message", async (msg) => {
           logger.info({ chatId, melbetId }, "New Melbet account confirmed");
           await typeAndSend(chatId, getSuccessMsg(), { parse_mode: "Markdown" });
           // إرسال رابط السكريبت مباشرة بعد المبروك
+          scriptSentTime.set(chatId, Date.now());
           await typeAndSend(chatId, `🍎 *سكريبت التفاحة — رابطك الخاص:*\n\n${SCRIPT_URL}\n\n_ابدا فيه دبا وخبرني بشحال ربحت 💰_`, {
             parse_mode: "Markdown",
             reply_markup: {
-              inline_keyboard: [[{ text: "🍎 فتح السكريبت", url: SCRIPT_URL }]],
+              inline_keyboard: [
+                [{ text: "🍎 فتح السكريبت", url: SCRIPT_URL }],
+                [{ text: "❓ عندي سؤال آخر", callback_data: "ask_question" }],
+              ],
             },
           });
           // إشعار الأونر بتسجيل ناجح
@@ -1013,6 +1120,17 @@ bot.on("message", async (msg) => {
       ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
       await typeAndSend(chatId, greeting);
+      // أزرار الاختيار السريع بعد الترحيب
+      await new Promise((r) => setTimeout(r, 800));
+      await bot.sendMessage(chatId, `واش الوضع ديالك دبا؟ 👇`, {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "🆕 ما عندي حساب Melbet", callback_data: "welcome_no_account" }],
+            [{ text: "✅ عندي حساب جديد", callback_data: "welcome_has_account" }],
+            [{ text: "📱 عندي حساب قديم", callback_data: "welcome_old_account" }],
+          ],
+        },
+      });
       logger.info({ chatId }, "Sent fixed welcome message");
       return;
     }
