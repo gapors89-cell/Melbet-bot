@@ -371,6 +371,90 @@ function getHalalResponse(): string {
   return HALAL_RESPONSES[Math.floor(Math.random() * HALAL_RESPONSES.length)]!;
 }
 
+// ── 11. مبلغ صغير / بدا بقليل ──
+const SMALL_AMOUNT_WORDS = [
+  "سوما صغيرة","مبلغ صغير","بـ 20","بـ 50","بـ 30","بـ 10","بقليل",
+  "ما عنديش بزاف","بزاف ما عندي","درهم","avec peu","petit montant",
+  "small amount","peu d'argent","50 درهم","100 دрахم","20 درهم","30 درهم",
+];
+function isAskingSmallAmount(t: string): boolean {
+  return SMALL_AMOUNT_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const SMALL_AMOUNT_RESPONSES = [
+  `أخويا تقدر تبدا بأي مبلغ بغيتي 😊 — هادا اختيارك أنت\n\nالمهم هو السكريبت اللي كيعطيك التوقع الصح، مهما كان المبلغ ✅`,
+  `بدا بشحال ما بغيتي أخويا 💰 — ما كاينش حد مينيموم\n\nكلما زاد المبلغ كلما زاد الربح — ولكن ابدا براحتك 😊`,
+];
+function getSmallAmountResponse(): string {
+  return SMALL_AMOUNT_RESPONSES[Math.floor(Math.random() * SMALL_AMOUNT_RESPONSES.length)]!;
+}
+
+// ── 12. كمبيوتر / لابطوب ──
+const COMPUTER_WORDS = [
+  "كمبيوتر","لابطوب","laptop","computer","pc","ordinateur","من الكمبيوتر",
+  "من اللابطوب","على الكمبيوتر","pc portable",
+];
+function isAskingComputer(t: string): boolean {
+  return COMPUTER_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const COMPUTER_RESPONSES = [
+  `آه أخويا تقدر تستعمله من الكمبيوتر أو اللابطوب بدون أي مشكل 💻\n\nالسكريبت رابط إنترنت — كيخدم على أي متصفح من أي جهاز ✅`,
+  `بالطبع أخويا 😊 الكمبيوتر واللابطوب يخدمو بشكل ممتاز\n\nغير افتح المتصفح وبدا — السكريبت ما محتاجش تحميل أي حاجة 💻`,
+];
+function getComputerResponse(): string {
+  return COMPUTER_RESPONSES[Math.floor(Math.random() * COMPUTER_RESPONSES.length)]!;
+}
+
+// ── 13. شنو هو سكريبت التفاحة / علاش التفاحة ──
+const APPLE_SCRIPT_WORDS = [
+  "شنو هو السكريبت","شنو السكريبت","علاش سميتيه تفاحة","شنو التفاحة",
+  "apple of fortune","تفاحة علاش","علاقتو بالتفاحة","c'est quoi le script",
+  "what is the script","شنو هي التفاحة","علاش تفاحة",
+];
+function isAskingAboutApple(t: string): boolean {
+  return APPLE_SCRIPT_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const APPLE_SCRIPT_RESPONSES = [
+  `أخويا السكريبت ديال التفاحة كيعطيك توقعات دقيقة للعبة *Apple of Fortune* فـ Melbet 🍎\n\nهادي لعبة موجودة في Melbet — والسكريبت كيحلل النتائج ويعطيك التوقع الصح قبل كل جولة ✅`,
+  `*Apple of Fortune* هي لعبة في Melbet 🍎 — والسكريبت ديالنا كيدرس النتائج ويعطيك التوقع الدقيق\n\nعلاش سميناه التفاحة؟ لأنه مرتبط بهادي اللعبة بالضبط 🎯`,
+];
+function getAppleScriptResponse(): string {
+  return APPLE_SCRIPT_RESPONSES[Math.floor(Math.random() * APPLE_SCRIPT_RESPONSES.length)]!;
+}
+
+// ── 14. قروب / مجموعة ──
+const GROUP_WORDS = [
+  "قروب","مجموعة","groupe","group","تيليغرام قروب","واتساب قروب",
+  "كاين قروب","فيه مجموعة","telegram group","whatsapp group",
+];
+function isAskingGroup(t: string): boolean {
+  return GROUP_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const GROUP_RESPONSES = [
+  `أخويا القروب قريب نديروه 🔜\n\nفاش يكون جاهز غادي نخبرك مباشرة 📢 استنى شوية وكن من الأوائل اللي ينضمو 💪`,
+  `القروب غادي يكون قريب أخويا 😊 — سيكون فيه كل التحديثات والتوقعات مباشرة\n\nغادي نبعث ليك الرابط فاش يكون جاهز ✅`,
+];
+function getGroupResponse(): string {
+  return GROUP_RESPONSES[Math.floor(Math.random() * GROUP_RESPONSES.length)]!;
+}
+
+// ── 15. مساعدة / مشكل / سابور ──
+const HELP_WORDS = [
+  "مساعدة","نساعدني","عندي مشكل","مشكل","مشكلة","ما خدمش","ما فهمتش",
+  "ما قدرتش","محتاج مساعدة","aide","problème","j'ai un problème",
+  "ça marche pas","ça fonctionne pas","help","problem","issue",
+  "عندي سوال","عندي سؤال",
+];
+function isAskingHelp(t: string): boolean {
+  return HELP_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const HELP_RESPONSES = [
+  `أخويا أنا هنا 🤝 أي مشكل حصل ليك قولي عليه بالتفصيل وأنا نعاونك دبا\n\nما تتردد — أنا هنا باش نحل ليك أي حاجة ✅`,
+  `خبرني شنو المشكل أخويا 💬 — نحاول نحلو معاك دبا\n\nما كاينش مشكل كبير ما ينحلش 😊`,
+];
+function getHelpResponse(): string {
+  return HELP_RESPONSES[Math.floor(Math.random() * HELP_RESPONSES.length)]!;
+}
+
 const MELBET_REGISTER_URL = "https://refpa3665.com/L?tag=d_4182345m_66335c_&site=4182345&ad=66335";
 
 async function sendDownloadButton(chatId: number): Promise<void> {
@@ -748,6 +832,31 @@ bot.on("message", async (msg) => {
       await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
       await bot.sendMessage(chatId, getHalalResponse(), { parse_mode: "Markdown" });
       logger.info({ chatId }, "Handled halal/haram question");
+
+    } else if (isAskingSmallAmount(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await bot.sendMessage(chatId, getSmallAmountResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled small-amount question");
+
+    } else if (isAskingComputer(userText)) {
+      await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 700)));
+      await bot.sendMessage(chatId, getComputerResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled computer/laptop question");
+
+    } else if (isAskingAboutApple(userText)) {
+      await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
+      await bot.sendMessage(chatId, getAppleScriptResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled apple-script explanation");
+
+    } else if (isAskingGroup(userText)) {
+      await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 700)));
+      await bot.sendMessage(chatId, getGroupResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled group question");
+
+    } else if (isAskingHelp(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await bot.sendMessage(chatId, getHelpResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled help/problem request");
 
     } else if (isAskingHowToUse(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
