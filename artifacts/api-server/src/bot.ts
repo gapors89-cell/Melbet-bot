@@ -45,24 +45,24 @@ const topicCounts = new Map<string, number>([
 ]);
 
 function detectTopic(text: string): string {
-  const t = text;
+  const t = text.toLowerCase();
   // تسجيل
-  if (/سجل|تسجيل|نسجل|تسجلت|سجلت|compte|register|حساب جديد|داخل|دخلت|انضم|اشتركت/.test(t)) return "تسجيل";
+  if (/سجل|تسجيل|نسجل|تسجلت|سجلت|حساب جديد|داخل|دخلت|انضم|اشتركت|compte|register|tsajl|ntsajl|sajlt|gdit compte|gdit hsb|drto|drt compte|inscription/.test(t)) return "تسجيل";
   // حساب قديم
-  if (/قديم|حساب قديم|عندي حساب|الحساب ديالي|compte ancien|my account/.test(t)) return "حساب قديم";
+  if (/قديم|حساب قديم|عندي حساب|الحساب ديالي|compte ancien|7sab qdim|hsb qdim|3ndi compte/.test(t)) return "حساب قديم";
   // سحب / شحن
-  if (/سحب|شحن|شحنت|سحبت|دفع|تحويل|فلوس|ودعت|طلعت|كريدي|recharge|depot|retrait|virement|argent|درهم|دراهم/.test(t)) return "سحب / شحن";
+  if (/سحب|شحن|شحنت|سحبت|دفع|تحويل|فلوس|ودعت|طلعت|كريدي|درهم|دراهم|recharge|depot|retrait|virement|argent|flous|s7b|s-7b/.test(t)) return "سحب / شحن";
   // ربح / خسارة
-  if (/ربح|ربحت|خسر|خسرت|ربحتي|ربحنا|كسبت|كسبتي|gagné|perdu|profit|gain/.test(t)) return "ربح / خسارة";
+  if (/ربح|ربحت|خسر|خسرت|ربحتي|ربحنا|كسبت|كسبتي|rb7|rb7t|ksr|ksrt|gagné|perdu|profit|gain|rbht|rbh/.test(t)) return "ربح / خسارة";
   // السكريبت
-  if (/سكريبت|script|تفاحة|apple|كيخدم|خدام|كيعطي|توقع|prediction|signal|استعمل|نستعمل/.test(t)) return "السكريبت";
+  if (/سكريبت|تفاحة|كيخدم|خدام|كيعطي|توقع|script|apple|prediction|signal|استعمل|نستعمل|skript|lscript|tapaha/.test(t)) return "السكريبت";
   // ضمان / نصب
-  if (/آمن|نصب|خايف|خوف|ضمان|موثوق|مزور|confiance|fiable|arnaque|sécur|صح|صادق|حقيقي|واقعي/.test(t)) return "ضمان / نصب";
+  if (/آمن|نصب|خايف|خوف|ضمان|موثوق|مزور|صادق|حقيقي|واقعي|confiance|fiable|arnaque|sécur|nsb|khayf|mzwr|wach sah|wach s7i7/.test(t)) return "ضمان / نصب";
   // شحال نربح
-  if (/شحال|كمية|مبلغ|قيمة|combien|montant|باش نربح|يمكن نربح|نكسب/.test(t)) return "شحال نربح";
+  if (/شحال|كمية|مبلغ|قيمة|باش نربح|يمكن نربح|نكسب|combien|montant|ch7al|sh7al|bch nrb7|bsh nrb7/.test(t)) return "شحال نربح";
   // تحميل التطبيق
-  if (/حمل|تحميل|telecharge|download|apk|تطبيق|application|app|نزل|installer/.test(t)) return "تحميل التطبيق";
-  // لا شيء — مش سؤال حقيقي (ردود قصيرة، تحيات)
+  if (/حمل|تحميل|تطبيق|نزل|telecharge|download|apk|application|app|installer|7ml|nzl/.test(t)) return "تحميل التطبيق";
+  // ردود قصيرة
   if (t.trim().length < 15) return "ردود قصيرة";
   return "أخرى";
 }
@@ -299,9 +299,15 @@ function getMelbetMsg(): string {
 }
 
 const AGREEMENT_WORDS = [
+  // عربية
   "اه", "آه", "أه", "نعم", "ايه", "أيه", "واه", "وا",
   "صح", "صحيح", "موافق", "بغيت", "أريد", "اريد",
   "هيا", "يلا", "هاك", "هات", "عطيني", "بلا", "جيب",
+  // فرانكو-عرب دارجة
+  "yak", "wakha", "wakha", "safi", "ewa", "wah", "mzyan", "mzyn",
+  "bghit", "bghit njrb", "rah", "ra", "hna", "yallah", "yala",
+  "dkhl", "ndkhl", "njrb", "bda", "nbda",
+  // فرنسية
   "yes", "oui", "ok", "okay", "yep", "sure", "go",
   "d'accord", "bien", "parfait", "allez",
 ];
@@ -319,10 +325,16 @@ function isAgreement(text: string): boolean {
 
 // ── كشف سؤال "منين/كيفاش نتسجل" ──
 const ASK_REGISTER_WORDS = [
+  // عربية
   "منين", "من وين", "فين", "كيفاش نتسجل", "كيفاش نسجل", "كيفاش نحمل",
   "كيف نتسجل", "كيف نسجل", "كيف نحمل", "وين نسجل", "وين نتسجل",
-  "رابط", "لينك", "link", "comment s'inscrire", "comment créer",
-  "où s'inscrire", "où télécharger", "كيفاش ندير", "كيف ندير",
+  "رابط", "لينك", "كيفاش ندير", "كيف ندير",
+  // فرانكو-عرب
+  "kifash ntsajl", "kifash nsajl", "kif ntsajl", "fin ntsajl",
+  "wfin ntsajl", "kif ndkhl", "kif ndir", "wach nadir", "ach nadir",
+  "link", "lien",
+  // فرنسية
+  "comment s'inscrire", "comment créer", "où s'inscrire", "où télécharger",
 ];
 
 function isAskingToRegister(text: string): boolean {
@@ -831,6 +843,7 @@ const SYSTEM_PROMPT = `أنت "أمين" — واحد من الحي، صاحب،
 - خلي الكلام قصير وعلى الطريق — 2 جمل كافيين غالباً
 - تكلم بحال ناس عارف السر ويشاركو مع صاحبو: "والله أخويا هادشي واقعي"، "كنقولك الصح"، "أنا جربتو مع ناس"
 - إذا كلمك بالفرنسية، رد بالفرنسية بنفس الأسلوب العفوي
+- إذا كلمك بالدارجة بالحروف اللاتينية (franco-arab مثل "wach", "kifash", "yak", "wakha")، فهمو وجاوبو بالدارجة العادية — هادي لغة عادية عند الشباب المغربي
 
 ما تديرهش أبداً:
 - ما تقولش "يسعدني مساعدتك" أو "كيفاش أقدر أخدمك" — هادي لغة بوت
