@@ -839,7 +839,7 @@ bot.on("callback_query", async (query) => {
   if (query.data === "welcome_no_account") {
     await bot.answerCallbackQuery(query.id);
     await bot.sendMessage(chatId,
-      `مزيان 👍 — سجل في Melbet واكتب *999BOT* فخانة الكود عند التسجيل`,
+      `مزيان 👍 — سجل في Melbet واكتب *999BOT promo* فخانة الكود عند التسجيل`,
       {
         parse_mode: "Markdown",
         reply_markup: {
@@ -865,7 +865,7 @@ bot.on("callback_query", async (query) => {
   if (query.data === "welcome_old_account") {
     await bot.answerCallbackQuery(query.id);
     await bot.sendMessage(chatId,
-      `الحساب القديم ما ينفعكش أخي ⛔ — خاصك حساب جديد في Melbet واكتب *999BOT* فخانة الكود`,
+      `الحساب القديم ما ينفعكش أخي ⛔ — خاصك حساب جديد في Melbet واكتب *999BOT promo* فخانة الكود`,
       {
         parse_mode: "Markdown",
         reply_markup: {
