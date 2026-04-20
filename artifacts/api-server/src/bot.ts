@@ -24,6 +24,15 @@ const agreedUsers = new Set<number>();
 const registeredUsers = new Set<number>();
 const downloadButtonSent = new Set<number>();
 const waitingForId = new Set<number>();
+const knownUsers = new Map<number, { name: string; username?: string; joinedAt: number }>();
+
+// ── إشعار الأونر ──
+async function notifyOwner(text: string): Promise<void> {
+  if (!OWNER_CHAT_ID) return;
+  try {
+    await bot.sendMessage(Number(OWNER_CHAT_ID), text, { parse_mode: "Markdown" });
+  } catch { /* ignore */ }
+}
 const conversationHistory = new Map<number, OpenAI.Chat.ChatCompletionMessageParam[]>();
 
 const OLD_ACCOUNT_THRESHOLD = 1_640_000_000;
@@ -704,24 +713,72 @@ bot.on("message", async (msg) => {
 
   if (!userText) return;
 
-  if (isOwner && OWNER_CHAT_ID && userText === "/stats") {
-    const totalUsers = welcomedUsers.size;
-    const totalAgreed = agreedUsers.size;
-    const totalRegistered = registeredUsers.size;
-    const totalPhotos = countPhotos();
-    await bot.sendMessage(
-      chatId,
-      `📊 *إحصائيات البوت*\n\n` +
-      `👥 مجموع الناس: *${totalUsers}*\n` +
-      `✅ وافقوا باش يجربوا: *${totalAgreed}*\n` +
-      `🎉 سجلوا رسمياً: *${totalRegistered}*\n` +
-      `🖼️ عدد الصور: *${totalPhotos}*`,
-      { parse_mode: "Markdown" }
-    );
+  if (isOwner && OWNER_CHAT_ID) {
+    // ── /stats ──
+    if (userText === "/stats") {
+      const now = Date.now();
+      const activeToday = [...lastMessageTime.entries()].filter(
+        ([, t]) => now - t < 24 * 60 * 60 * 1000
+      ).length;
+      const totalPhotos = countPhotos();
+      await bot.sendMessage(
+        chatId,
+        `📊 *إحصائيات البوت*\n\n` +
+        `👥 مجموع الناس: *${knownUsers.size}*\n` +
+        `📨 بعثوا رسائل: *${welcomedUsers.size}*\n` +
+        `✅ وافقوا باش يجربوا: *${agreedUsers.size}*\n` +
+        `🎉 سجلوا رسمياً: *${registeredUsers.size}*\n` +
+        `🟢 نشيطين اليوم: *${activeToday}*\n` +
+        `🖼️ عدد الصور: *${totalPhotos}*`,
+        { parse_mode: "Markdown" }
+      );
+      return;
+    }
+
+    // ── /broadcast <رسالة> ──
+    if (userText.startsWith("/broadcast ")) {
+      const broadcastMsg = userText.slice("/broadcast ".length).trim();
+      if (!broadcastMsg) {
+        await bot.sendMessage(chatId, "⚠️ كتب الرسالة بعد /broadcast");
+        return;
+      }
+      const targets = [...knownUsers.keys()];
+      let sent = 0; let failed = 0;
+      await bot.sendMessage(chatId, `📤 البرودكاست بدا — *${targets.length}* شخص...`, { parse_mode: "Markdown" });
+      for (const uid of targets) {
+        try {
+          await bot.sendMessage(uid, broadcastMsg, { parse_mode: "Markdown" });
+          sent++;
+          await new Promise((r) => setTimeout(r, 60));
+        } catch { failed++; }
+      }
+      await bot.sendMessage(chatId, `✅ وصلت لـ *${sent}* | ❌ فشلت *${failed}*`, { parse_mode: "Markdown" });
+      return;
+    }
+
+    // ── /users — لائحة آخر 10 مستخدمين ──
+    if (userText === "/users") {
+      const list = [...knownUsers.entries()].slice(-10).reverse()
+        .map(([id, u]) => `• [${u.name}](tg://user?id=${id})${u.username ? " @" + u.username : ""} — \`${id}\``)
+        .join("\n");
+      await bot.sendMessage(chatId, `👥 *آخر 10 مستخدمين:*\n\n${list || "لا يوجد"}`, { parse_mode: "Markdown" });
+      return;
+    }
+
     return;
   }
 
-  if (isOwner && OWNER_CHAT_ID) return;
+  // ── تتبع المستخدم ──
+  if (!knownUsers.has(chatId)) {
+    knownUsers.set(chatId, {
+      name: firstName,
+      username: msg.from?.username,
+      joinedAt: Date.now(),
+    });
+    // إشعار الأونر بمستخدم جديد
+    const uname = msg.from?.username ? `@${msg.from.username}` : `\`${chatId}\``;
+    notifyOwner(`🆕 *مستخدم جديد!*\n\n👤 ${firstName} (${uname})\n🕐 أول رسالة: ${new Date().toLocaleTimeString("fr-MA")}`).catch(() => {});
+  }
 
   logger.info({ chatId, userText }, "Received message");
   lastMessageTime.set(chatId, Date.now());
@@ -740,6 +797,14 @@ bot.on("message", async (msg) => {
         if (melbetId < OLD_ACCOUNT_THRESHOLD) {
           // حساب قديم
           logger.info({ chatId, melbetId }, "Old Melbet account detected");
+          // إشعار الأونر بحساب قديم
+          const uOld = knownUsers.get(chatId);
+          const unameOld = uOld?.username ? `@${uOld.username}` : `\`${chatId}\``;
+          notifyOwner(
+            `⚠️ *حساب قديم كُشف!*\n\n` +
+            `👤 ${uOld?.name ?? "—"} (${unameOld})\n` +
+            `🆔 ID: \`${melbetId}\` ← قديم`
+          ).catch(() => {});
           await bot.sendMessage(
             chatId,
             `🚨 *تحذير من السيستام!*\n\n` +
@@ -763,6 +828,14 @@ bot.on("message", async (msg) => {
           registeredUsers.add(chatId);
           logger.info({ chatId, melbetId }, "New Melbet account confirmed");
           await bot.sendMessage(chatId, getSuccessMsg(), { parse_mode: "Markdown" });
+          // إشعار الأونر بتسجيل ناجح
+          const u = knownUsers.get(chatId);
+          const uname = u?.username ? `@${u.username}` : `\`${chatId}\``;
+          notifyOwner(
+            `✅ *مستخدم سجل حساب جديد!*\n\n` +
+            `👤 ${u?.name ?? "—"} (${uname})\n` +
+            `🆔 Melbet ID: \`${melbetId}\``
+          ).catch(() => {});
         }
         return;
       }
