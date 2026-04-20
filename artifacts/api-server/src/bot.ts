@@ -12,14 +12,10 @@ if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not set");
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// على Replit (development) ما نبداوش polling باش ما يتعارضش مع Railway
 const isProduction = process.env["NODE_ENV"] !== "development";
 const bot = new TelegramBot(TELEGRAM_TOKEN, {
   polling: isProduction ? { autoStart: true, params: { timeout: 10 } } : false,
 });
-if (!isProduction) {
-  logger.warn("⚠️  Running in development — polling DISABLED to avoid conflict with Railway instance");
-}
 
 const welcomedUsers = new Set<number>();
 const messageCount = new Map<number, number>();
