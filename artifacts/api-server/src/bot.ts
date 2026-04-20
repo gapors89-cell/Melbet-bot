@@ -282,6 +282,95 @@ function getScamResponse(): string {
   return SCAM_RESPONSES[Math.floor(Math.random() * SCAM_RESPONSES.length)]!;
 }
 
+// ── 6. شحال يمكن نربح ──
+const HOW_MUCH_WORDS = [
+  "شحال ربحت","شحال يمكن نربح","شحال كيربح","شحال الربح","كتير ربحو",
+  "combien on peut gagner","combien tu as gagné","combien ça rapporte",
+  "how much","how many",
+];
+function isAskingHowMuch(t: string): boolean {
+  return HOW_MUCH_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const HOW_MUCH_RESPONSES = [
+  `أخويا الربح كيكون على حساب الإيداع اللي درتي 💰\n\nالناس اللي عرفوا كيفاش يستغلو السكريبت بذكاء ربحوا الملايين 🏆 — كلما زاد إيداعك زاد ربحك ✅`,
+  `مكاين حد واحد الجواب أخويا 😄 — الربح كيتحسب على حساب اللي كتلعب بيه\n\nناس ربحوا بزاف بزاف بالسكريبت لأنهم عرفوا كيفاش يديروه 🍎 الأهم تبدا تجرب 💪`,
+  `أخويا ربح واحد ربح الملايين لأنه لعب بذكاء مع السكريبت 🎯\n\nما كاينش سقف للربح — كلما زاد إيداعك وخدمت التوقعات، كيزيد الربح 💰`,
+];
+function getHowMuchResponse(): string {
+  return HOW_MUCH_RESPONSES[Math.floor(Math.random() * HOW_MUCH_RESPONSES.length)]!;
+}
+
+// ── 7. عندي حساب قديم في Melbet (قبل ما يبعث الـ ID) ──
+const OLD_ACCOUNT_MENTION_WORDS = [
+  "عندي حساب فيه","عندي حساب في ميلبيت","عندي حساب في melbet",
+  "كنلعب فيه","كنلعب من مدة","كاين عندي حساب","مسجل فيه",
+  "j'ai déjà un compte","j'ai un compte melbet","already have account",
+  "عندي اكونت","عندي اكاونت",
+];
+function mentionsOldAccount(t: string): boolean {
+  const c = t.trim().toLowerCase();
+  return OLD_ACCOUNT_MENTION_WORDS.some((w) => c.includes(w));
+}
+const OLD_ACCOUNT_MENTION_RESPONSES = [
+  `أخويا الحساب القديم ما ينفعكش مع السكريبت 🚫\n\nخاصك *حساب جديد في Melbet* — ومهم بزاف تسجل بالكود *999BOT* باش تقدر تستافد من السكريبت بشكل كامل 🎯`,
+  `الحساب القديم ما كيخدمش أخويا ⛔ السكريبت مرتبط بالحسابات الجديدة فقط\n\nسجل حساب جديد دبا بالكود *999BOT* وبعث ليا الـ ID وغادي نفعل ليك السكريبت 🍎`,
+  `أخويا ضروري يكون *حساب جديد* 🔑 — الحساب القديم ما يقدرش يوصل للسكريبت\n\nافتح واحد جديد في Melbet بالكود *999BOT* وأنا نكون هنا نساعدك ✅`,
+];
+function getOldAccountMentionResponse(): string {
+  return OLD_ACCOUNT_MENTION_RESPONSES[Math.floor(Math.random() * OLD_ACCOUNT_MENTION_RESPONSES.length)]!;
+}
+
+// ── 8. iOS / iPhone / App Store ──
+const IOS_WORDS = [
+  "iphone","ios","app store","آيفون","ايفون","apple store",
+  "ipad","متاح على ايفون","واش كاين على ايفون",
+];
+function isAskingIOS(t: string): boolean {
+  return IOS_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const IOS_RESPONSES = [
+  `أخويا السكريبت ماشي تطبيق — هو *رابط* كيخدم من المتصفح مباشرة 🌐\n\nيعني يشتغل معك على iPhone أو Android أو أي جهاز — غير افتح المتصفح وكيخدم ✅`,
+  `مكاينش مشكل أخويا 😄 السكريبت رابط إنترنت — يشتغل من المتصفح على أي هاتف\n\nما تحتاجش تحمل حتى حاجة — غير سجل في Melbet بالكود *999BOT* وأنا نرسل ليك الرابط 🍎`,
+];
+function getIOSResponse(): string {
+  return IOS_RESPONSES[Math.floor(Math.random() * IOS_RESPONSES.length)]!;
+}
+
+// ── 9. عطيني السكريبت بلا Melbet / بدون تسجيل ──
+const NO_REGISTER_WORDS = [
+  "بلا melbet","بدون melbet","بلا ميلبيت","بدون تسجيل","بدون حساب",
+  "عطيني السكريبت غير هكا","السكريبت بدون","sans melbet","sans inscription",
+  "without melbet","without registering","just give me",
+];
+function wantsScriptFree(t: string): boolean {
+  return NO_REGISTER_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const SCRIPT_FREE_URL = "https://script-apple.replit.app";
+const NO_REGISTER_RESPONSES = [
+  `أخويا ممكن نرسل ليك الرابط دبا 🔗 ${SCRIPT_FREE_URL}\n\nولكن بدون حساب جديد في Melbet بالكود *999BOT*، السكريبت مغيعطيكش حتى توقع صحيح ⚠️\n\nباش تشوف النتائج الحقيقية خاصك الحساب الجديد 🎯`,
+  `واضح أخويا 😄 الرابط هو: ${SCRIPT_FREE_URL}\n\nولكن من غير حساب Melbet جديد بالكود *999BOT* — السكريبت ما يعطيكش التوقعات الصحيحة\n\nالسر كلو في الحساب الجديد + الكود *999BOT* 🔑`,
+];
+function getNoRegisterResponse(): string {
+  return NO_REGISTER_RESPONSES[Math.floor(Math.random() * NO_REGISTER_RESPONSES.length)]!;
+}
+
+// ── 10. شنو هو Melbet / كازينو / حلال ──
+const HALAL_WORDS = [
+  "حلال","حرام","شنو هو melbet","شنو هو ميلبيت","واش كازينو",
+  "كازينو","مراهنة","مراهنات","c'est quoi melbet","c'est halal",
+  "c'est haram","c'est un casino","what is melbet","is it halal",
+];
+function isAskingHalal(t: string): boolean {
+  return HALAL_WORDS.some((w) => t.trim().toLowerCase().includes(w));
+}
+const HALAL_RESPONSES = [
+  `أخويا الربح حلال 100% 💯\n\nلأننا ما كنراهنوش — كنلعبو بتوقعات *مضمونة* من السكريبت 🍎\n\nالفرق كبير: المراهنة عشوائية، أما نحن كنلعبو بمعطيات ودراسة ✅`,
+  `أخويا مفهوم السؤال 😊 — الربح حلال لأنك ما كتراهنش عشوائي\n\nالسكريبت كيعطيك التوقع الصح قبل اللعب — يعني كتلعب بمعلومة مو بالحظ 🎯\n\nهاد الفرق هو اللي كيخلي الربح مضمون ومقبول ✅`,
+];
+function getHalalResponse(): string {
+  return HALAL_RESPONSES[Math.floor(Math.random() * HALAL_RESPONSES.length)]!;
+}
+
 const MELBET_REGISTER_URL = "https://refpa3665.com/L?tag=d_4182345m_66335c_&site=4182345&ad=66335";
 
 async function sendDownloadButton(chatId: number): Promise<void> {
@@ -634,6 +723,31 @@ bot.on("message", async (msg) => {
         await bot.sendMessage(chatId, getRiskResponse(), { parse_mode: "Markdown" });
       }
       logger.info({ chatId }, "Handled risk question — sent photo proof");
+
+    } else if (isAskingHowMuch(userText)) {
+      await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
+      await bot.sendMessage(chatId, getHowMuchResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled how-much-can-I-earn question");
+
+    } else if (mentionsOldAccount(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      await bot.sendMessage(chatId, getOldAccountMentionResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled old-account mention before ID");
+
+    } else if (isAskingIOS(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await bot.sendMessage(chatId, getIOSResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled iOS/iPhone question");
+
+    } else if (wantsScriptFree(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      await bot.sendMessage(chatId, getNoRegisterResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled wants-script-without-Melbet");
+
+    } else if (isAskingHalal(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await bot.sendMessage(chatId, getHalalResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled halal/haram question");
 
     } else if (isAskingHowToUse(userText)) {
       await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
