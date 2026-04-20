@@ -793,9 +793,22 @@ const REGISTERED_WORDS = [
   "درت", "ديرت", "دار", "درتو",
   "خليت", "خلقت", "صنعت", "عملت",
   "كملت", "خلصت", "وقّعت", "وقعت",
-  "عندي حساب", "عندي", "كاين عندي",
+  "عندي حساب", "كاين عندي",
   "رجيسترت", "رجستريت", "رجيسترد",
   "دزت", "واصلت",
+  // فرانكو-عرب — الأكثر شيوعاً
+  "gadit", "gdit", "gadt",          // كاديت (did/created)
+  "gadit lkont", "gdit lkont",       // كاديت الكونت
+  "gadit compte", "gdit compte",
+  "gadit kolxi", "gdit kolxi",       // كاديت كلشي (done everything)
+  "gadit lhsab", "gdit lhsab",
+  "gadit fmelbet", "gadit f melbet",
+  "rah gadit", "ana gadit",
+  "tsajlt", "tsajl", "sajlt",        // تسجلت
+  "drt compte", "drt lkont",
+  "kolxi drt", "kolxi drto",
+  "khlasat", "khlas",                // خلاصت / خلاص (all done)
+  "waxxa drt", "wakha drt",
   // فرنسية
   "j'ai créé", "j'ai fini", "j'ai fait", "c'est fait", "inscrit", "créé",
   "j'ai ouvert", "j'ai terminé", "fait",
