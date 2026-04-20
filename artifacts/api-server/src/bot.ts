@@ -24,6 +24,7 @@ const agreedUsers = new Set<number>();
 const registeredUsers = new Set<number>();
 const downloadButtonSent = new Set<number>();
 const waitingForId = new Set<number>();
+const pendingPitch = new Set<number>(); // ينتظر رد الشخص قبل الشرح
 const knownUsers = new Map<number, { name: string; username?: string; joinedAt: number }>();
 
 // ── محاكاة الكتابة البشرية ──
@@ -803,7 +804,7 @@ const SYSTEM_PROMPT = `أنت "أمين" — واحد من الحي، صاحب،
 - إذا خاف من النصب: "والله أنا فاهمك، ولكن ما طلبنا منك حتى درهم — الفلوس تبقى عندك"
 
 قاعدة الكود *999BOT* — مهمة جداً:
-- الكود *999BOT* مش مجرد برومو عادي — السكريبت كيتحقق من الكود عند التسجيل
+- الكود *999BOT* مش غير رقم — السكريبت كيتحقق منه عند التسجيل وبلاشو ما كيوصلش ليك
 - إذا سجل بلا الكود *999BOT*، السكريبت *مكيخدمش معاه* والتوقعات مكتجيش صح
 - كون صارم وواضح في هاد النقطة: "خاصك حساب جديد *بالكود 999BOT* — بلاش ما ينفعكش"
 - IMPORTANT: ذكر الكود *999BOT* فقط فاش يسول على التسجيل أو كيفاش يبدا — مش في كل رسالة
@@ -1108,38 +1109,44 @@ bot.on("message", async (msg) => {
       return;
     }
 
-    const isFirstMessage = !welcomedUsers.has(chatId);
-    if (isFirstMessage) {
-      welcomedUsers.add(chatId);
-      // رسالة الترحيب الثابتة — كأنها من أمين مباشرة
-      const greetings = [
-        `سلام 😄 أنا أمين — سمعتي على سكريبت التفاحة؟ بغيتي تجربو؟ مجاني بالكامل 🍎`,
-        `آسلامو عليكم — أنا أمين، واحد من الفريق 😊 واش جيت باش تجرب السكريبت؟`,
-        `سلام أخي 👋 أنا أمين — غتجرب السكريبت ديال التفاحة ولا لا؟ مجاني وما فيه غير خير 🍎`,
-        `واعليكم السلام — أنا أمين 😄 واش سمعتي على السكريبت ديال التفاحة؟`,
-      ];
-      const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
-      await typeAndSend(chatId, greeting);
-      // رسالة التعريف بالسكريبت
+    // ── المرحلة الثانية: بعد ما يجاوب الشخص — شرح السكريبت + أزرار ──
+    if (pendingPitch.has(chatId)) {
+      pendingPitch.delete(chatId);
       const pitches = [
-        `🍎 *سكريبت التفاحة* — برنامج مجاني لمدة محدودة كيحلل اللعب في Melbet ويعطيك توقعات صحيحة *90%*\n\nبزاف من الناس كيستعملوه وكيربحوا — وأنا هنا باش نساعدك توصلو بالمجان 🎯`,
-        `🍎 *واش سمعتي على سكريبت التفاحة؟*\n\nهو برنامج مجاني كيديك توقعات صحيحة *90%* على Melbet — الناس اللي خدموا بيه ربحوا بزاف\n\nوالله مجاني ومحدود الوقت فقط ⏳`,
-        `🍎 *سكريبت التفاحة* كيعطي توقعات صحيحة *90%* على Melbet — مجاني بالكامل لكن لوقت محدود\n\nالناس كيستعملوه ويربحوا، وأنا نساعدك تحصل عليه دبا 💰`,
+        `🍎 *سكريبت التفاحة* — برنامج مجاني لمدة محدودة كيحلل اللعب في Melbet ويعطيك توقعات صحيحة *90%*\n\nبزاف من الناس خدموا بيه وربحوا مزيان — وأنا هنا باش نساعدك توصلو 🎯`,
+        `🍎 *واش سمعتي على سكريبت التفاحة؟*\n\nبرنامج مجاني كيديك توقعات صحيحة *90%* على Melbet — الناس اللي جربوه ربحوا بزاف\n\nوالله مجاني، غير لوقت محدود ⏳`,
+        `🍎 *سكريبت التفاحة* — كيعطيك توقعات صحيحة *90%* على Melbet، مجاني بالكامل لكن لوقت محدود\n\nوأنا نساعدك توصلو دبا 💰`,
       ];
       const pitch = pitches[Math.floor(Math.random() * pitches.length)]!;
       await typeAndSend(chatId, pitch, { parse_mode: "Markdown" });
-      // أزرار الاختيار السريع بعد التعريف
-      await new Promise((r) => setTimeout(r, 600));
-      await bot.sendMessage(chatId, `واش الوضع ديالك دبا؟ 👇`, {
+      await new Promise((r) => setTimeout(r, 700));
+      await bot.sendMessage(chatId, `واش عندك حساب في Melbet؟ 👇`, {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "🆕 ما عندي حساب Melbet", callback_data: "welcome_no_account" }],
+            [{ text: "🆕 ما عندي حساب", callback_data: "welcome_no_account" }],
             [{ text: "✅ عندي حساب جديد", callback_data: "welcome_has_account" }],
             [{ text: "📱 عندي حساب قديم", callback_data: "welcome_old_account" }],
           ],
         },
       });
-      logger.info({ chatId }, "Sent fixed welcome message");
+      logger.info({ chatId }, "Sent pitch + account buttons after first reply");
+      return;
+    }
+
+    const isFirstMessage = !welcomedUsers.has(chatId);
+    if (isFirstMessage) {
+      welcomedUsers.add(chatId);
+      // رسالة الترحيب فقط — ننتظر جواب الشخص قبل الشرح
+      const greetings = [
+        `سلام 😄 أنا أمين — واش راك؟`,
+        `آسلامو عليكم — أنا أمين 😊 كيف داير؟`,
+        `سلام أخي 👋 — أنا أمين، شنو الأخبار؟`,
+        `واعليكم السلام — أنا أمين 😄 واش كلشي مزيان؟`,
+      ];
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
+      await typeAndSend(chatId, greeting);
+      pendingPitch.add(chatId); // ننتظر رده قبل الشرح
+      logger.info({ chatId }, "Sent greeting — waiting for first reply");
       return;
     }
 
