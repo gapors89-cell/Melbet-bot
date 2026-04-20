@@ -839,7 +839,7 @@ bot.on("callback_query", async (query) => {
   if (query.data === "welcome_no_account") {
     await bot.answerCallbackQuery(query.id);
     await bot.sendMessage(chatId,
-      `مزيان أخي 👍 — الخطوة الأولى هي تحميل تطبيق Melbet\n\nوالمهم: عند التسجيل دخل الكود *999BOT* — بلاشو السكريبت مكيخدمش معاك 🔑`,
+      `مزيان 👍 — سجل في Melbet واكتب *999BOT* فخانة الكود عند التسجيل`,
       {
         parse_mode: "Markdown",
         reply_markup: {
@@ -865,7 +865,7 @@ bot.on("callback_query", async (query) => {
   if (query.data === "welcome_old_account") {
     await bot.answerCallbackQuery(query.id);
     await bot.sendMessage(chatId,
-      `أخي الحساب القديم ما ينفعكش ⛔ — السكريبت مكيخدمش مع حسابات قديمة\n\nوالأهم: خاصك تسجل الحساب الجديد *بالكود 999BOT* بالضبط — بلاشو مكيعطيكش التوقعات الصحيحة 🔑`,
+      `الحساب القديم ما ينفعكش أخي ⛔ — خاصك حساب جديد في Melbet واكتب *999BOT* فخانة الكود`,
       {
         parse_mode: "Markdown",
         reply_markup: {
