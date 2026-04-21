@@ -1219,12 +1219,36 @@ bot.on("message", async (msg) => {
         }
         return;
       }
-      // ما بعثش رقم — نذكره
-      await bot.sendMessage(
-        chatId,
-        `🔢 بعث ليا الـ *ID* ديالك في Melbet فقط (أرقام فقط) باش نتأكدو 👇`,
-        { parse_mode: "Markdown" }
-      );
+      // ما بعثش رقم — نشوفو شنو كيقول
+      const lowerText = userText.trim().toLowerCase();
+      const isDoubt = /la|non|mabght|mabghit|ma bght|khasrni|tsrq|sr9|nssb|nsb|khayf|khayef|wach ghat|wavh ghat|mzwr|scam|arnaque|خايف|نصب|مزور|لا مبغيتش|ما بغيتش|مكنبغيش/.test(lowerText);
+      const isRefusal = /ma bghit|mabghitich|la mabghit|la mansift|la mansi|ما بغيت|مكبغيتش/.test(lowerText);
+
+      if (isDoubt || isRefusal) {
+        // الشخص عنده مخاوف — نجاوبو بشكل طبيعي عبر GPT
+        waitingForId.delete(chatId); // نخرجو من وضع الانتظار مؤقتاً
+        const history = conversationHistory.get(chatId) ?? [];
+        const contextMsg = `المستخدم في مرحلة إرسال ID الخاص به في Melbet لكنه أبدى تحفظاً أو خوفاً. رسالته: "${userText}". طمّنه بشكل طبيعي وعفوي، وأخبره أنك لا تطلب أمواله ولا معلومات حساسة — فقط رقم ID للتحقق. ثم اطلب منه ID بشكل لطيف.`;
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...history,
+            { role: "user", content: contextMsg },
+          ],
+          max_tokens: 200,
+        });
+        const reply = response.choices[0]?.message?.content ?? "والله أخي ما كنطلبش منك حتى شي خطير — الـ ID غير رقم عام كاين فالإعدادات 😊";
+        await typeAndSend(chatId, reply);
+        waitingForId.add(chatId); // نرجعو لوضع الانتظار
+      } else {
+        // تذكير بسيط
+        await bot.sendMessage(
+          chatId,
+          `🔢 بعث ليا الـ *ID* ديالك في Melbet فقط (أرقام فقط) باش نتأكدو 👇`,
+          { parse_mode: "Markdown" }
+        );
+      }
       return;
     }
 
