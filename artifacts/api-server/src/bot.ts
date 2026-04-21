@@ -253,17 +253,31 @@ setInterval(async () => {
           ? `${getTimeGreeting()}\n\n${getReminderMsg()}`
           : getReminderMsg();
         const photoId = getRandomPhoto();
+        let sent = false;
+        // نحاول بالصورة أولاً، وإذا فشلت ننتقل للنص
         if (photoId && Math.random() < 0.5) {
-          await bot.sendPhoto(chatId, photoId, { caption: reminderText, parse_mode: "Markdown" });
-        } else {
+          try {
+            await bot.sendPhoto(chatId, photoId, { caption: reminderText, parse_mode: "Markdown" });
+            sent = true;
+          } catch {
+            // الصورة فشلت — نرجعو للنص
+          }
+        }
+        if (!sent) {
           await bot.sendMessage(chatId, reminderText, { parse_mode: "Markdown" });
         }
         reminderSent.set(chatId, now);
         logger.info({ chatId }, "Sent reminder message");
-      } catch (err) {
+      } catch (err: unknown) {
+        const code = (err as { code?: string })?.code;
         logger.error({ err, chatId }, "Failed to send reminder");
-        lastMessageTime.delete(chatId);
-        reminderSent.delete(chatId);
+        // إذا بلوك البوت — نحذف المستخدم نهائياً
+        if (code === "ETELEGRAM" && String(err).includes("bot was blocked")) {
+          lastMessageTime.delete(chatId);
+          reminderSent.delete(chatId);
+          logger.info({ chatId }, "User blocked bot — removed from reminders");
+        }
+        // في أي خطأ آخر — نبقيو المستخدم ونحاولو المرة الجاية
       }
     }
   }
@@ -328,9 +342,14 @@ setInterval(async () => {
       try {
         const msg = DAILY_BROADCAST_MSGS[Math.floor(Math.random() * DAILY_BROADCAST_MSGS.length)]!;
         const photoId = getRandomPhoto();
+        let broadcastSent = false;
         if (photoId && Math.random() < 0.4) {
-          await bot.sendPhoto(chatId, photoId, { caption: msg, parse_mode: "Markdown" });
-        } else {
+          try {
+            await bot.sendPhoto(chatId, photoId, { caption: msg, parse_mode: "Markdown" });
+            broadcastSent = true;
+          } catch { /* فشلت الصورة، نكملو بالنص */ }
+        }
+        if (!broadcastSent) {
           await bot.sendMessage(chatId, msg, { parse_mode: "Markdown" });
         }
         dailyBroadcastSent.set(chatId, today);
