@@ -809,6 +809,67 @@ function getWinReportResponse(): string {
   return WIN_REPORT_RESPONSES[Math.floor(Math.random() * WIN_REPORT_RESPONSES.length)]!;
 }
 
+// ── 18b. ميزة 1: ردود على الإهانات/الرفض/الغضب ──
+const INSULT_WORDS = [
+  "نصاب", "نصابين", "احتيال", "كدب", "كداب", "تكدب",
+  "nsab", "arnaque", "escroc", "menteur", "c'est faux", "c'est fake",
+  "machi hna", "bghit nmchi", "seer", "sir", "روح", "سير",
+  "ما نبغيكش", "ما تكلمنيش", "بعد عني", "خليني", "seer men hna",
+  "غير روح", "تشرمل", "حشوم", "ما بغيت", "ما راك",
+  "khodam","faux","fake","scam","arnaquer","roulé",
+];
+function isInsulting(text: string): boolean {
+  const t = text.trim().toLowerCase();
+  return INSULT_WORDS.some((w) => t.includes(w));
+}
+const INSULT_RESPONSES = [
+  `أخويا فاهمك 100% 😊 — وهاد الشك طبيعي\n\nولكن بصح، ما طلبنا منك حتى درهم — الفلوس تبقى عندك دايما 🙏\n\nغير سجل حساب جديد في Melbet بالكود *999BOT* وأنت شاهد بعينيك النتيجة`,
+  `والله أخويا مفهوم 😅 — الإنترنت فيه بزاف دالنصابين وأنا مفهمك\n\nولكن أنا ما طلبت منك حتى درهم — السكريبت مجاني 100% والتسجيل في Melbet مجاني\n\nجرب وإلا ما عجبكش ارجع قولي 😄`,
+  `لا بأس أخويا 🤝 — الشك دليل على العقل\n\nبس خبرك: ما كاين هنا حتى شي مخفي — السكريبت مجاني، Melbet موقع قانوني، والكود *999BOT* يتحقق منه لما تسجل\n\nخد وقتك وإلا سولني أي سؤال 😊`,
+  `مفهوم أخويا 👍 — ما خصك تثق فيا من أول وهلة\n\nالاستعمال مجاني بالكامل — ما كاين حتى ريال من جيبك\n\nإلا بغيتي نتحقق معاك من Melbet كامل ذلك مزيان — سولني`,
+];
+function getInsultResponse(): string {
+  return INSULT_RESPONSES[Math.floor(Math.random() * INSULT_RESPONSES.length)]!;
+}
+
+// ── 18c. ميزة 3: الأرقام العشوائية (خارج سياق الـ ID) ──
+function isRandomNumberMessage(text: string): boolean {
+  const clean = text.trim();
+  // إذا كان أرقام فقط لكن أقصر من 7 أو أطول من 12 → مش ID
+  return /^\d+$/.test(clean) && (clean.length < 7 || clean.length > 12);
+}
+const RANDOM_NUMBER_RESPONSES = [
+  `أخويا هاد الرقم يبدو قصير 🤔 — الـ ID ديال Melbet عادةً بين 7 و12 رقم\n\nواش هذا ID ديالك في Melbet؟ تلقاه في الإعدادات تحت اسمك مباشرة 📲`,
+  `أخويا راك بعثتي رقم — هل هذا ID حسابك في Melbet؟ 🤔\n\nإلا آه، ابعثه كاملاً (كون يكون بين 7 و12 رقم) وأنا نتحقق منه 👇`,
+  `هههه أخويا هاد الرقم مش بالشكل الصح 😄 — الـ ID ديال Melbet أطول من هاكا\n\nكاين في البروفيل ديالك في التطبيق — افتح التطبيق وشوف تحت اسمك 🔢`,
+];
+function getRandomNumberResponse(): string {
+  return RANDOM_NUMBER_RESPONSES[Math.floor(Math.random() * RANDOM_NUMBER_RESPONSES.length)]!;
+}
+
+// ── 18d. ميزة 4: كشف المزاج ──
+const ANGRY_WORDS = [
+  "معصّب", "معصب", "زعفان", "زعفانة", "محروق", "تعبت",
+  "ما ربحتش", "خسرت", "خسرنا", "deja essayé", "j'ai essayé",
+  "جربت وما خدمش", "جربتو وما خدمش", "ما خدمش معايا",
+  "ما نجحش", "طاحت فلوسي", "طاح فلوسي", "انتهيت",
+  "frustré", "énervé", "j'en ai marre", "c'est nul",
+  "kbant", "kbant 3lik", "tban 3lik", "3asab", "3asban",
+];
+function isAngryMood(text: string): boolean {
+  const t = text.trim().toLowerCase();
+  return ANGRY_WORDS.some((w) => t.includes(w));
+}
+
+// ── 18e. ميزة 5: تخصيص الرسائل بالاسم ──
+function personalize(text: string, name: string): string {
+  // 40% من الوقت نضيفو الاسم بشكل طبيعي
+  if (Math.random() > 0.4 || name === "صديقي" || name.length > 12) return text;
+  const prefixes = [`${name}،`, `يا ${name}،`, `يا ${name} —`];
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)]!;
+  return `${prefix} ${text.charAt(0).toLowerCase() + text.slice(1)}`;
+}
+
 // ── 18. وين نلقى ID ديالي في Melbet ──
 const FIND_ID_WORDS = [
   "وين نلقى id","وين نلقى الـ id","كيفاش نعرف id","كيفاش نلقى id",
@@ -1436,6 +1497,14 @@ bot.on("message", async (msg) => {
       return;
     }
 
+    // ── ميزة 1: كشف الإهانات/الرفض ──
+    if (isInsulting(userText)) {
+      await new Promise((r) => setTimeout(r, 1000 + Math.floor(Math.random() * 1000)));
+      await typeAndSend(chatId, personalize(getInsultResponse(), firstName), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled insult/rejection");
+      return;
+    }
+
     // ── ميزة 3: كشف المنافسين ──
     if (detectCompetitor(userText)) {
       await new Promise((r) => setTimeout(r, 900 + Math.floor(Math.random() * 900)));
@@ -1444,11 +1513,24 @@ bot.on("message", async (msg) => {
       return;
     }
 
+    // ── ميزة 3b: أرقام عشوائية خارج سياق الـ ID ──
+    if (!waitingForId.has(chatId) && isRandomNumberMessage(userText)) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor(Math.random() * 800)));
+      await typeAndSend(chatId, getRandomNumberResponse(), { parse_mode: "Markdown" });
+      logger.info({ chatId }, "Handled random number message");
+      return;
+    }
+
     const isFirstMessage = !welcomedUsers.has(chatId);
     if (isFirstMessage) {
       welcomedUsers.add(chatId);
-      // رسالة الترحيب فقط — ننتظر جواب الشخص قبل الشرح
-      const greetings = [
+      // رسالة الترحيب — مع الاسم أحياناً (ميزة 5)
+      const useName = firstName !== "صديقي" && firstName.length <= 12 && Math.random() < 0.6;
+      const greetings = useName ? [
+        `اسلام يا ${firstName} 😊 أنا أمين — واش بغيتي سكريبت التفاحة مجانا؟ 🍎`,
+        `سلام ${firstName} 😄 أنا أمين — واش بغيتي سكريبت التفاحة مجانا؟ 🍎`,
+        `آسلامو عليكم يا ${firstName} 😊 أنا أمين — واش بغيتي سكريبت التفاحة؟ 🍎`,
+      ] : [
         `اسلام أنا أمين 😊 واش بغيتي سكريبت التفاحة مجانا؟ 🍎`,
         `سلام أنا أمين 😄 واش بغيتي سكريبت التفاحة مجانا؟ 🍎`,
         `آسلامو عليكم أنا أمين 😊 واش بغيتي سكريبت التفاحة مجانا؟ 🍎`,
@@ -1463,8 +1545,18 @@ bot.on("message", async (msg) => {
     const french = isFrench(userText);
     const history = conversationHistory.get(chatId) ?? [];
 
+    // ── ميزة 4: تعديل البرومبت بحسب المزاج ──
+    const angryExtra = isAngryMood(userText)
+      ? `\n\n⚠️ المستخدم يبدو محبط أو زعفان الآن — كن أكثر تفهماً وهدوءاً في ردك. لا تذكر التسجيل في هاد الرسالة مباشرة. ابدأ بالتعاطف: "فاهمك أخويا..." أو "طبيعي..." ثم اشرح بهدوء.`
+      : "";
+
+    // ميزة 5: نخبر GPT باسم المستخدم باش يستعملو أحياناً بشكل طبيعي
+    const nameHint = firstName !== "صديقي" && firstName.length <= 12
+      ? `\n\nاسم المستخدم الحقيقي هو: ${firstName}. يمكنك استعمال اسمه بشكل طبيعي أحياناً (مش في كل رسالة) — مثل "يلاه يا ${firstName}" أو "${firstName} سمعني".`
+      : "";
+
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: SYSTEM_PROMPT + angryExtra + nameHint },
     ];
 
     messages.push(...history);
