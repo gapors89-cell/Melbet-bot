@@ -240,7 +240,7 @@ function getReminderMsg(): string {
   return REMINDER_MESSAGES[Math.floor(Math.random() * REMINDER_MESSAGES.length)]!;
 }
 
-// ── تذكير مباشر لكل مستخدم بـ setTimeout ──
+// ── تذكير مباشر لكل مستخدم بـ setTimeout — يتكرر كل 30 دقيقة ──
 async function fireReminder(chatId: number) {
   reminderTimers.delete(chatId);
   if (registeredUsers.has(chatId)) return; // مسجل، ما نزعجوش
@@ -263,6 +263,11 @@ async function fireReminder(chatId: number) {
     logger.info({ chatId }, "Sent reminder message");
   } catch (err) {
     logger.error({ err, chatId }, "Failed to send reminder");
+  }
+  // إذا لم يسجل بعد، نجدول تذكيراً آخر بعد 30 دقيقة
+  if (!registeredUsers.has(chatId)) {
+    const timer = setTimeout(() => { fireReminder(chatId).catch(() => {}); }, REMINDER_DELAY_MS);
+    reminderTimers.set(chatId, timer);
   }
 }
 
