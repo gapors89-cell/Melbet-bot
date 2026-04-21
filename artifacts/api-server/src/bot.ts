@@ -20,7 +20,7 @@ const bot = new TelegramBot(TELEGRAM_TOKEN, {
 const welcomedUsers = new Set<number>();
 const messageCount = new Map<number, number>();
 const lastMessageTime = new Map<number, number>();
-const reminderSent = new Map<number, number>();
+const reminderTimers = new Map<number, ReturnType<typeof setTimeout>>();
 const agreedUsers = new Set<number>();
 const registeredUsers = new Set<number>();
 const downloadButtonSent = new Set<number>();
@@ -102,7 +102,6 @@ const INVALID_ID_MAX         = 1_700_000_000;
 const MELBET_APK_URL = "https://melbet.com.ph/downloads/androidclient/releases_android/melbet/site/melbet.apk";
 
 const REMINDER_DELAY_MS = 30 * 60 * 1000;
-const CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
 // ── ميزة 2: عداد أرباح عشوائي ──
 const WIN_AMOUNTS = [120, 180, 240, 310, 350, 420, 480, 550, 620, 750, 890, 1100, 1350];
@@ -241,47 +240,39 @@ function getReminderMsg(): string {
   return REMINDER_MESSAGES[Math.floor(Math.random() * REMINDER_MESSAGES.length)]!;
 }
 
-setInterval(async () => {
-  const now = Date.now();
-  for (const [chatId, lastTime] of lastMessageTime.entries()) {
-    const lastReminder = reminderSent.get(chatId) ?? 0;
-    if (now - lastTime >= REMINDER_DELAY_MS && now - lastReminder >= REMINDER_DELAY_MS) {
+// ── تذكير مباشر لكل مستخدم بـ setTimeout ──
+async function fireReminder(chatId: number) {
+  reminderTimers.delete(chatId);
+  if (registeredUsers.has(chatId)) return; // مسجل، ما نزعجوش
+  try {
+    const useTimeGreeting = Math.random() < 0.4;
+    const reminderText = useTimeGreeting
+      ? `${getTimeGreeting()}\n\n${getReminderMsg()}`
+      : getReminderMsg();
+    const photoId = getRandomPhoto();
+    let sent = false;
+    if (photoId && Math.random() < 0.5) {
       try {
-        // ── ميزة 2: أحياناً نبدا التذكير بتحية بحسب الوقت ──
-        const useTimeGreeting = Math.random() < 0.4;
-        const reminderText = useTimeGreeting
-          ? `${getTimeGreeting()}\n\n${getReminderMsg()}`
-          : getReminderMsg();
-        const photoId = getRandomPhoto();
-        let sent = false;
-        // نحاول بالصورة أولاً، وإذا فشلت ننتقل للنص
-        if (photoId && Math.random() < 0.5) {
-          try {
-            await bot.sendPhoto(chatId, photoId, { caption: reminderText, parse_mode: "Markdown" });
-            sent = true;
-          } catch {
-            // الصورة فشلت — نرجعو للنص
-          }
-        }
-        if (!sent) {
-          await bot.sendMessage(chatId, reminderText, { parse_mode: "Markdown" });
-        }
-        reminderSent.set(chatId, now);
-        logger.info({ chatId }, "Sent reminder message");
-      } catch (err: unknown) {
-        const code = (err as { code?: string })?.code;
-        logger.error({ err, chatId }, "Failed to send reminder");
-        // إذا بلوك البوت — نحذف المستخدم نهائياً
-        if (code === "ETELEGRAM" && String(err).includes("bot was blocked")) {
-          lastMessageTime.delete(chatId);
-          reminderSent.delete(chatId);
-          logger.info({ chatId }, "User blocked bot — removed from reminders");
-        }
-        // في أي خطأ آخر — نبقيو المستخدم ونحاولو المرة الجاية
-      }
+        await bot.sendPhoto(chatId, photoId, { caption: reminderText, parse_mode: "Markdown" });
+        sent = true;
+      } catch { /* الصورة فشلت — ننتقلو للنص */ }
     }
+    if (!sent) {
+      await bot.sendMessage(chatId, reminderText, { parse_mode: "Markdown" });
+    }
+    logger.info({ chatId }, "Sent reminder message");
+  } catch (err) {
+    logger.error({ err, chatId }, "Failed to send reminder");
   }
-}, CHECK_INTERVAL_MS);
+}
+
+function scheduleReminder(chatId: number) {
+  // إلغاء أي تذكير سابق وإعادة الجدولة من الصفر
+  const existing = reminderTimers.get(chatId);
+  if (existing) clearTimeout(existing);
+  const timer = setTimeout(() => { fireReminder(chatId).catch(() => {}); }, REMINDER_DELAY_MS);
+  reminderTimers.set(chatId, timer);
+}
 
 // ══════════════════════════════════════════════════════
 // ── الجدولة اليومية: صباح + مساء + غوست ──
@@ -1359,7 +1350,8 @@ bot.on("message", async (msg) => {
 
   logger.info({ chatId, userText }, "Received message");
   lastMessageTime.set(chatId, Date.now());
-  reminderSent.delete(chatId);
+  // كل رسالة من المستخدم تعيد جدولة التذكير من الصفر — 30 دقيقة من الرسالة الأخيرة
+  if (!registeredUsers.has(chatId)) scheduleReminder(chatId);
 
   // ── تتبع الموضوع ──
   const topic = detectTopic(userText);
@@ -1422,6 +1414,9 @@ bot.on("message", async (msg) => {
         } else {
           // حساب جديد ✅
           registeredUsers.add(chatId);
+          // نألغي أي تذكير مجدول — المستخدم سجل ما نزعجوش
+          const t = reminderTimers.get(chatId);
+          if (t) { clearTimeout(t); reminderTimers.delete(chatId); }
           logger.info({ chatId, melbetId }, "New Melbet account confirmed");
           await typeAndSend(chatId, getSuccessMsg(), { parse_mode: "Markdown" });
           // إرسال رابط السكريبت مباشرة بعد المبروك
